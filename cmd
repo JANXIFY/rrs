@@ -16442,6 +16442,7 @@ function useCommand.combos()
 	opx("-","Listed combos")
 	opxL("Combos",xCombos)
 end
+
 function useCommand.combonew()
 	if arguments[3] then
 		opx("-","Added "..arguments[2] .." to combos")
@@ -16450,6 +16451,7 @@ function useCommand.combonew()
 		opx("*","3 arguments are required!")
 	end
 end
+
 function useCommand.combodel()
 	if arguments[2] then
 		for i,v in pairs(combos) do
@@ -16468,6 +16470,7 @@ function useCommand.combosclr()
 	combos = {}
 	updatesaves()
 end
+
 function useCommand.chatprivacypublic()
 	local gethiddenproperty = gethiddenproperty or get_hidden_property
 	if not gethiddenproperty then
@@ -16495,6 +16498,7 @@ function useCommand.chatprivacypublic()
 		cmdrs.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(target.Name.."'s privacy mode is No-one","All")
 	end
 end
+
 function useCommand.chatprivacyprivate()
 	local gethiddenproperty = gethiddenproperty or get_hidden_property
 	if not gethiddenproperty then
@@ -16519,6 +16523,7 @@ function useCommand.chatprivacyprivate()
 		opx("-",target.Name.."'s privacy mode is No-one")
 	end
 end
+
 function useCommand.chatprivacy()
 	local sethiddenproperty = sethiddenproperty or set_hidden_property
 	if not sethiddenproperty then
@@ -16532,6 +16537,7 @@ function useCommand.chatprivacy()
 	opx("-","Set your Chat Privacy to "..arguments[2])
 	sethiddenproperty(cmdlp,"ChatPrivacyMode",Enum.ChatPrivacyMode[arguments[2]])    
 end
+
 function useCommand.masschatprivacy()
 	local gethiddenproperty = gethiddenproperty or get_hidden_property
 	if not gethiddenproperty then
@@ -16551,27 +16557,32 @@ function useCommand.masschatprivacy()
 	end
 	opxL("Chat Privacy",xCPM)
 end
+
 local gravity = workspace.Gravity
 function useCommand.sitfly()
 	workspace.Gravity = 0
 	cmdlp.Character.Humanoid.Sit = true
 	opx("-", "Now sitflying")
 end
+
 function useCommand.platformfly()
 	workspace.Gravity = 0
 	cmdlp.Character.Humanoid.PlatformStand = true
 	opx("-", "Now platformflying")
 end
+
 function useCommand.unsitfly()
 	workspace.Gravity = gravity
 	cmdlp.Character.Humanoid.Sit = false
 	opx("-", "No longer sitflying")
 end
+
 function useCommand.unplatformfly()
 	workspace.Gravity = gravity
 	cmdlp.Character.Humanoid.PlatformStand = false
 	opx("-", "No longer platformflying")
 end
+
 function useCommand.hotkeysitflyhold()
 	if not arguments[2] then
 		opx("*", "2 arguments required")
@@ -16599,6 +16610,7 @@ function useCommand.hotkeysitflyhold()
 	end)
 	opx("-", "Sitfly enabled on key "..arguments[2]:upper().." on hold")
 end
+
 function useCommand.hotkeyplatformflyhold()
 	if not arguments[2] then
 		opx("*", "2 arguments required")
@@ -16626,6 +16638,7 @@ function useCommand.hotkeyplatformflyhold()
 	end)
 	opx("-", "Platformfly enabled on key "..arguments[2]:upper().." on hold")
 end
+
 function useCommand.hotkeysitflytoggle()
 	if not arguments[2] then
 		opx("*", "2 arguments required")
@@ -16654,6 +16667,7 @@ function useCommand.hotkeysitflytoggle()
 	end)
 	opx("-", "Sitfly enabled on key "..arguments[2]:upper().." on toggle")
 end
+
 function useCommand.hotkeyplatformflytoggle()
 	if not arguments[2] then
 		opx("*", "2 arguments required")
@@ -16682,6 +16696,7 @@ function useCommand.hotkeyplatformflytoggle()
 	end)
 	opx("-", "Platformfly enabled on key "..arguments[2]:upper().." on toggle")
 end
+
 function useCommand.spoofgrouprole()
     if _G.rolehook then
         opx("*","Spoof group role already enabled!")
@@ -16708,6 +16723,7 @@ function useCommand.spoofgrouprole()
     end)
     setreadonly(mt, true)
 end
+
 function useCommand.unspoofgrouprole()
     if not _G.rolehook then
         opx("*", "Spoof group role is not enabled.")
@@ -16719,6 +16735,7 @@ function useCommand.unspoofgrouprole()
     opx("-", "Spoof group role is now disabled.")
     _G.rolehook = nil    
 end
+
 function useCommand.nogameteleport()
     if _G.gtphook then
         opx("*","No game teleport already enabled!")
@@ -16736,6 +16753,7 @@ function useCommand.nogameteleport()
     end)
     setreadonly(mt, true)    
 end
+
 function useCommand.yesgameteleport()
     if not _G.gtphook then
         opx("*", "No game teleport is not enabled.")
@@ -16747,6 +16765,7 @@ function useCommand.yesgameteleport()
     opx("-", "No game teleport is now disabled.")
     _G.gtphook = nil   
 end
+
 function useCommand.hotkeyflyhold()
 	if not arguments[2] then
 		opx("*", "2 arguments required")
@@ -16770,6 +16789,7 @@ function useCommand.hotkeyflyhold()
 	end)
 	opx("-", "Fly enabled on key "..arguments[2]:upper().." on hold")
 end
+
 function useCommand.spooffps()
 	if _G.fpshook then
 		opx("*","Spoof FPS is already enabled!")
@@ -16790,6 +16810,7 @@ function useCommand.spooffps()
 	    return _G.fpshook(self, ...)
 	end)
 end
+
 function useCommand.unspooffps()
 	if not _G.fpshook then
 		opx("*","Spoof FPS is not enabled!")
@@ -16801,6 +16822,7 @@ function useCommand.unspooffps()
 	opx("-","Spoof FPS is disabled")
 	_G.fpshook = nil
 end
+
 function useCommand.spoofping()
 	if _G.pinghook then
 		opx("*","Spoof ping is already enabled!")
@@ -16818,6 +16840,7 @@ function useCommand.spoofping()
 	    return _G.pinghook(self, ...)
 	end)
 end
+
 function useCommand.unspoofping()
 	if not _G.pinghook then
 		opx("*","Spoof ping is not enabled!")
@@ -16829,6 +16852,7 @@ function useCommand.unspoofping()
 	opx("-","Spoof ping is disabled")
 	_G.pinghook = nil
 end
+
 function useCommand.spoofmemory()
 	if _G.memoryhook then
 		opx("*","Spoof memory is already enabled!")
@@ -16846,6 +16870,7 @@ function useCommand.spoofmemory()
 	    return _G.memoryhook(self, ...)
 	end)
 end
+
 function useCommand.unspoofmemory()
 	if not _G.memoryhook then
 		opx("*","Spoof memory is not enabled!")
@@ -16857,6 +16882,7 @@ function useCommand.unspoofmemory()
 	opx("-","Spoof memory is disabled")
 	_G.memoryhook = nil
 end
+
 function useCommand.drawingnew()
 	if newDrawing == Drawing then
 		opx("*", "Already using new drawing.")
@@ -16869,6 +16895,7 @@ function useCommand.drawingnew()
 	setreadonly(Drawing, true)
 	opx("-", "Now using new Drawing API")
 end
+
 function useCommand.spoofclientid()
     if _G.clid then
         opx("*","ClientID already spoofed")
@@ -16887,6 +16914,7 @@ function useCommand.spoofclientid()
     end)
     setreadonly(mt, true)
 end
+
 function useCommand.randomspoofclientid()
     if _G.clid then
         opx("*","ClientID already spoofed")
@@ -16905,6 +16933,7 @@ function useCommand.randomspoofclientid()
     end)
     setreadonly(mt, true)
 end
+
 function useCommand.unspoofclientid()
     if not _G.clid then
         opx("*","ClientID is not already spoofed")
@@ -16916,6 +16945,7 @@ function useCommand.unspoofclientid()
 	setreadonly(mt, true)
 	_G.clid = nil
 end
+
 function useCommand.drawingold()
 	if not oldDrawing then
 		opx("*", "Your exploit doesn't have it's own Drawing API.")
@@ -16932,9 +16962,12 @@ function useCommand.drawingold()
 	setreadonly(Drawing, false)
 	opx("-", "Now using your exploits Drawing API")
 end
+
 user.Changed:connect(function()
 	user.Text = user.Text:sub(1,13)..">"
 end)
+---------------------------------------|
+-- GUI Hotkeys: -----------------------|
 cmdm.KeyDown:connect(function(key)
 	if key == hotkeyopen then
 		if holder.Visible == false then
@@ -17068,6 +17101,8 @@ cmdm.KeyDown:connect(function(key)
 		end
 	end
 end)
+---------------------------------------|
+-- Print Function: --------------------|
 if not AntiCheat.PrintingOff then
 	local StarterGui = game:GetService("StarterGui")
 	StarterGui:SetCore("ChatMakeSystemMessage", {
@@ -17088,6 +17123,7 @@ if not AntiCheat.PrintingOff then
 		TextSize = 20
 	})
 end
+
 if AntiCheat.ScriptDetectOff then opx("*","Script detection is off due to anticheat") end
 if AntiCheat.TurboNameSpam then opx("*","Turbo name spam has been turned on due to anticheat") end
 if AntiCheat.HideParentInExploit then opx("*","Hidden parent in exploit due to anticheat") end
@@ -17099,6 +17135,9 @@ if AntiCheat.DontJumbleNames then opx("*","Jumble names is off due to anticheat"
 if AntiCheat.OneTimeScramble then opx("*","Scrambled names once due to anticheat") end
 if AntiCheat.PrintingOff then opx("*","Printing has been turned off due to anticheat") end
 if AntiCheat.Warning1 then opx("*","This game is known to have a float/fly anticheat becareful") end
+
+---------------------------------------|
+-- Start CMDs: ------------------------|
 if #enterCMD > 0 then
 	for i = 1,#enterCMD do
 		arguments = enterCMD[i].N:split(" ")
@@ -17134,13 +17173,20 @@ cmd.Focused:connect(function()
 		end
 	end)
 end)
+
 tabs = holder
 mou = cmdm
 createDrag(tabs)
+
+---------------------------------------|
+-- Themes: ----------------------------|
+ 
 styleAS = dStyle:split(" ")
+
 function getAsset(ID)
 	return("http://www.roblox.com/Thumbs/Asset.ashx?format=png&width=420&height=420&assetId="..ID)
 end
+
 if dStyle == "rounded" then
 	output.Style = Enum.FrameStyle.RobloxRound
 elseif dStyle == "squared" then
@@ -17210,6 +17256,9 @@ elseif styleAS[1] == "bg" then
 	iBG.Image = getAsset(styleAS[2])
 	iBG.ScaleType = Enum.ScaleType.Crop
 end
+ 
+---------------------------------------|
+-- Chat hook: -------------------------|
 pcall(function()
 	local chatbar = cmdlp.PlayerGui.Chat.Frame.ChatBarParentFrame.Frame.BoxFrame.Frame.ChatBar
 	local changed
@@ -17228,6 +17277,7 @@ pcall(function()
 		changed:Disconnect()
 	end)
 end)
+
 game:GetService("UserInputService").InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.Gamepad1 then
         if not _G.capturingFocus then
@@ -17247,6 +17297,7 @@ game:GetService("UserInputService").InputBegan:Connect(function(input)
     	asdflkasdfasdf = false
     end
 end)
+
 cmdlp.Chatted:connect(function(v)
 	game:GetService("RunService").RenderStepped:Wait()
 	if Inputting and asdflkasdfasdf == true then
@@ -17262,11 +17313,13 @@ cmdlp.Chatted:connect(function(v)
 		end
 	end
 end)
+
 pcall(function()
 	if AntiCheat.IntroAudioOff == false then
 		Sound2:Destroy()
 	end
 end)
+
 local counter = 0
 local num = 10
 if not _G.colorSequences then
@@ -17295,9 +17348,11 @@ if not _G.colorSequences then
 		end
 	end
 end
+
 if not _G.RGBDev then
 	_G.RGBDev = {Lettering = {}, Connections = {}}
 end
+
 function RGBDev(Player)
 	name = Player.Name
 	if _G.RGBDev.Connections[name] then return end
@@ -17324,6 +17379,7 @@ function RGBDev(Player)
 		end
 	end)
 end
+
 function colorName(Player)
 	name = Player.Name
 	local plm = game:GetService("CoreGui").RobloxGui:FindFirstChild("PlayerListMaster")
@@ -17343,6 +17399,7 @@ function colorName(Player)
 		end
 	end
 end
+
 for _,v in pairs(cmdp:GetPlayers()) do
 	if Devs[v.Name] then
 		opx("-",v.Name.." is in your server ("..Devs[v.Name].." of CMD-X)")
@@ -17352,6 +17409,7 @@ for _,v in pairs(cmdp:GetPlayers()) do
 		colorName(v)
 	end
 end
+
 cmdp.PlayerAdded:Connect(function(v)
 	if Devs[v.Name] then
 		opx("-",v.Name.." is in your server ("..Devs[v.Name].." of CMD-X)")
@@ -17361,18 +17419,22 @@ cmdp.PlayerAdded:Connect(function(v)
 		colorName(v)
 	end
 end)
+-- End --------------------------------|
 output.Visible = true
 holder.Visible = true
 holder.Active = true
+
 if IsExe then
     for i,v in pairs(CMDS.aliases) do
 	useCommand[i] = useCommand[v];
     end
+
     for i,v in pairs(CMDS.commands) do
         local CommandName = i;
         local CommandDisc = v;
         SendCommand(CommandName, CommandDisc)
     end
+
     for i,v in pairs(CMDS.aliases) do
         local CommandName = i;
         SendCommand(CommandName, "Aliases for " .. v)
