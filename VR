@@ -1,23 +1,39 @@
+print("  | I really hated making this but it was worth it"
+wait(1)
 print("  | should be functional for non-VR users, rightclick/leftclick = point right/left arm, may perform worse"
+wait(1)
 print("  | things you can do:")
+wait(1)
 print("     use tools and the likes [not functional with RagdollEnabled]")
+wait(1)
 print("     interact with the luxury of a full body [no leg tracking, feet auto place]")
+wait(1)
 print("     interact with things as a robloxian, accurate sizing and full body allows for full immersion")
+wait(1)
 print("     play as your own roblox character by enabling RagdollEnabled [R6 only, RagdollHeadMovement adds an extra 10 seconds to script startup]")
+wait(1)
 print("     move & teleport accurately by pointing your right hand and holding/releasing C [Y/B with VR Controller]")
+wait(1)
 print("     view nearby players chatting & view nearby characters including yourself in the bottom right, good for recording videos")
+wait(1)
 print("     total customizability over what you appear as [Ragdoll disabled only]")
-print("  | this version will likely be patched by roblox soon, we will be rewriting it to be worth selling long after this release!")
-
+wait(1)
 print("  | Controls:")
-
+wait(1)
 print(" [ L2 TAP ]	- Chat HUD")
-print(" [ Y ]	- Point Walk		-- movement joystick works -- may or may not be mixed up with the Teleport button")
+wait(1)
+print(" [ Y ]	- Point Walk -- movement joystick works -- may or may not be mixed up with the Teleport button")
+wait(1)
 print("--")
+wait(1)
 print(" [ X ]	- RagdollEnabled [BreakJoints]")
+wait(1)
 print("--")
+wait(1)
 print(" [ C ]	- Non-VR Teleport")
+wait(1)
 print(" [ LSHIFT ]	- Non-VR Sprint")
+wait(1)
 print(" [ LCTRL ]	- Non-VR Crouch")
 
 local StudsOffset = 0.1 -- Character height offset (make negative if you're too high)
@@ -62,18 +78,10 @@ local FootPlacementSettings = {
 	LeftOffset = Vector3.new(-.5, 0, 0),
 }
 
---|| Script:
-
 local Script = nil;
 local Pointer = nil;
 
--- My coding style changed throughout this a lot lol
-
 Script = function()
-
---[[
-	Variables
---]]
 
 local Players = game:GetService("Players")
  local Client = Players.LocalPlayer
@@ -121,10 +129,6 @@ end
 
 StarterGui:SetCore("VRLaserPointerMode", 3)
 
---[[
-	Character Protection
---]]
-
 local CharacterCFrame = WeldBase.CFrame
 
 if not RagdollEnabled then
@@ -160,10 +164,6 @@ if not RagdollEnabled then
 		end
 	end
 end
-
---[[
-	Functions
---]]
 
 function Tween(Object, Style, Direction, Time, Goal)
     local tweenInfo = TweenInfo.new(Time, Enum.EasingStyle[Style], Enum.EasingDirection[Direction])
@@ -329,10 +329,6 @@ local function GetHeadAccessories()
 	end
 end
 
---[[
-	VR Replication Setup
---]]
-
 if not RagdollEnabled then
 	LeftHandle, LeftHandGrip = CreateAccessory(Character:FindFirstChild(AccessorySettings.LeftArm), AccessorySettings.BlockArms)
 	RightHandle, RightHandGrip = CreateAccessory(Character:FindFirstChild(AccessorySettings.RightArm), AccessorySettings.BlockArms)
@@ -385,10 +381,6 @@ elseif RagdollEnabled then
 	end
 end
 
---[[
-	Movement
---]]
-
 VirtualRig.Name = "VirtualRig"
 VirtualRig.RightFoot.BodyPosition.Position = CharacterCFrame.p
 VirtualRig.LeftFoot.BodyPosition.Position = CharacterCFrame.p
@@ -397,7 +389,6 @@ VirtualRig:SetPrimaryPartCFrame(CharacterCFrame)
 
 VirtualRig.Humanoid.Health = 0
 VirtualRig:BreakJoints()
---
 
 VirtualBody.Parent = workspace
 VirtualBody.Name = "VirtualBody"
@@ -406,7 +397,7 @@ VirtualBody.Humanoid.CameraOffset = Vector3.new(0, StudsOffset, 0)
 VirtualBody:SetPrimaryPartCFrame(CharacterCFrame)
 
 VirtualBody.Humanoid.Died:Connect(function()
-	print("Virtual death")
+	print("VR Death")
 	if AutoRespawn then
 		Character:BreakJoints()
 		
@@ -416,7 +407,6 @@ VirtualBody.Humanoid.Died:Connect(function()
 		end
 	end
 end)
---
 
 Camera.CameraSubject = VirtualBody.Humanoid
 
@@ -465,10 +455,6 @@ end)
 UserInputService.JumpRequest:Connect(function()
 	VirtualBody.Humanoid.Jump = true
 end)
-
---[[
-	VR Replication
---]]
 
 if RagdollEnabled then
 	for _, Part in pairs(Character:GetDescendants()) do
@@ -688,7 +674,7 @@ local function UpdateLegPosition()
 	end
 end
 
-warn("VRReady is", VRReady)
+print("VR is", VRReady)
 
 local function OnUserCFrameChanged(UserCFrame, Positioning, IgnoreTorso)
 	local Positioning = Camera.CFrame * Positioning
@@ -759,8 +745,6 @@ local function OnUserCFrameChanged(UserCFrame, Positioning, IgnoreTorso)
 			RightHandGrip.C0 = RightHandGrip.C0:Lerp(WeldBase.CFrame:ToObjectSpace(HandPosition), Smoothness)
 			RightHandGrip.Parent = nil
 			RightHandGrip.Parent = Parent
-			
-			--
 			
 			local EquippedTool = GetExtraTool()
 			
@@ -948,10 +932,6 @@ spawn(function()
 	end
 end)
 
---[[
-	Non-VR Support + VR Mechanics
---]]
-
 local OnInput = UserInputService.InputBegan:Connect(function(Input, Processed)
 	if not Processed then
 		if Input.KeyCode == Enum.KeyCode.LeftControl or Input.KeyCode == Enum.KeyCode.ButtonL2 then
@@ -1042,10 +1022,6 @@ local OnInputEnded = UserInputService.InputEnded:Connect(function(Input, Process
 	end
 end)
 
---[[
-	Proper Cleanup
---]]
-
 local OnReset
 
 OnReset = Client.CharacterAdded:Connect(function()
@@ -1080,9 +1056,6 @@ if ViewportEnabled then
 end
 
 do
-	--[[
-		Functions
-	--]]
 	
 	local Players = game:GetService("Players")
 	 local Client = Players.LocalPlayer
@@ -1094,10 +1067,6 @@ do
 	local RunService = game:GetService("RunService")
 	
 	local Camera = workspace.CurrentCamera
-	
-	--[[
-		Code
-	--]]
 	
 	if VRReady or true then
 		Pointer = game:GetObjects("rbxassetid://4476173280")[1]
@@ -1124,8 +1093,6 @@ do
 		local Input = UserInputService.InputBegan:Connect(function(Input)
 			
 		end)
-		
-		--
 		
 		local CharacterAdded
 		
@@ -1160,11 +1127,9 @@ Permadeath = function()
 	z1.Position = Vector3.new(0,9999,0)
 	z2.Position = Vector3.new(0,9991,0)
 	game.Players.LocalPlayer.Character=prt
-	wait(5)
-	warn("50%")
 	game.Players.LocalPlayer.Character=ch
-	wait(6)
-	warn("100%")
+	wait(1)
+	warn("Permadeath: On")
 end;
 
 Respawn = function()
@@ -1189,9 +1154,6 @@ Respawn = function()
 end;
 
 ChatHUDFunc = function()
-	--[[
-		Variables
-	--]]
 	
 	local UserInputService = game:GetService("UserInputService")
 	local RunService = game:GetService("RunService")
@@ -1213,10 +1175,7 @@ ChatHUDFunc = function()
 	
 	Template.Parent = nil
 	ChatHUD.Parent = game:GetService("CoreGui")
-	
-	--[[
-		Code
-	--]]
+end;
 	
 	local Highlight = Global.Frame.BackgroundColor3
 	local Deselected = Local.Frame.BackgroundColor3
@@ -1249,8 +1208,6 @@ ChatHUDFunc = function()
 	Local.MouseButton1Click:Connect(OpenLocalTab)
 	
 	OpenLocalTab()
-	
-	--
 	
 	local function GetPlayerDistance(Sender)
 		if Sender.Character and Sender.Character:FindFirstChild("Head") then
@@ -1314,8 +1271,6 @@ ChatHUDFunc = function()
 		OnPlayerAdded(Player)
 	end
 	
-	--
-	
 	local ChatPart = ChatHUD.Part
 	
 	ChatHUD.Adornee = ChatPart
@@ -1355,9 +1310,6 @@ ChatHUDFunc = function()
 end;
 
 ViewHUDFunc = function()
-	--[[
-		Variables
-	--]]
 	
 	local ViewportRange = ViewportRange or 32
 	
@@ -1385,10 +1337,6 @@ ViewHUDFunc = function()
 	Viewcam.CameraType = Enum.CameraType.Scriptable
 	Viewport.CurrentCamera = Viewcam
 	Viewport.BackgroundTransparency = 1
-	
-	--[[
-		Code
-	--]]
 	
 	local function Clone(Character)
 		local Arc = Character.Archivable
@@ -1514,8 +1462,6 @@ ViewHUDFunc = function()
 		
 		ViewHUD.Size = UDim2.new(0, Scale.X - 6, 0, Scale.Y - 6)
 	end)
-		
-	--
 	
 	local CharacterAdded
 	
