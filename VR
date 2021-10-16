@@ -62,7 +62,7 @@ local AccessorySettings = {
 	LeftArm		= "LavanderHair"; -- Name of hat used as this limb
 	RightArm	= "Pal Hair"; -- Name of hat used as this limb
 	LeftLeg		= "Kate Hair"; -- Name of hat used as this limb
-	RightLeg	= "Hat1"; -- Name of hat used as this limb
+	RightLeg	= "Pink Hair"; -- Name of hat used as this limb
 	Torso		= "CoolBoyHair"; -- Name of hat used as this limb
 	Head		= true; -- Are extra hats assumed to be worn?
 	
