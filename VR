@@ -1,24 +1,24 @@
 print("  | should be functional for non-VR users, rightclick/leftclick = point right/left arm, may perform worse"
 print("  | things you can do:")
 print("     use tools and the likes [not functional with RagdollEnabled]")
-print("     interact with the luxury of a full body [no l tracking, feet auto place]) 
-	-- interact with things as a robloxian, accurate sizing and full body allows for full immersion
-	-- play as your own roblox character by enabling RagdollEnabled [R6 only, RagdollHeadMovement adds an extra 10 seconds to script startup]
-	-- move & teleport accurately by pointing your right hand and holding-releasing Y or B
-	-- view nearby players chatting & view nearby characters including yourself in the bottom right, good for recording videos
-	-- total customizability over what you appear as (Ragdoll disabled only)
+print("     interact with the luxury of a full body [no leg tracking, feet auto place]")
+print("     interact with things as a robloxian, accurate sizing and full body allows for full immersion")
+print("     play as your own roblox character by enabling RagdollEnabled [R6 only, RagdollHeadMovement adds an extra 10 seconds to script startup]")
+print("     move & teleport accurately by pointing your right hand and holding/releasing C [Y/B with VR Controller]")
+print("     view nearby players chatting & view nearby characters including yourself in the bottom right, good for recording videos")
+print("     total customizability over what you appear as [Ragdoll disabled only]")
+print("  | this version will likely be patched by roblox soon, we will be rewriting it to be worth selling long after this release!")
 
---  | this version will likely be patched by roblox soon, we will be rewriting it to be worth selling long after this release!
+print("  | Controls:")
 
---|| Controls:
-
--- [ L2 TAP ]	- Chat HUD
--- [ Y ]	- Point Walk		-- movement joystick works -- may or may not be mixed up with the Teleport button
--- [ X ]	- RagdollEnabled die
-
--- [ C ]	- Non-VR Teleport
--- [ LSHIFT ]	- Non-VR Sprint
--- [ LCTRL ]	- Non-VR Crouch
+print(" [ L2 TAP ]	- Chat HUD")
+print(" [ Y ]	- Point Walk		-- movement joystick works -- may or may not be mixed up with the Teleport button")
+print("--")
+print(" [ X ]	- RagdollEnabled [BreakJoints]")
+print("--")
+print(" [ C ]	- Non-VR Teleport")
+print(" [ LSHIFT ]	- Non-VR Sprint")
+print(" [ LCTRL ]	- Non-VR Crouch")
 
 local StudsOffset = 0.1 -- Character height offset (make negative if you're too high)
 local Smoothness = 0.3 -- Character interpolation (0.1 - 1 = smooth - rigid)
