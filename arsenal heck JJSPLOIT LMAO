@@ -1,5 +1,4 @@
-local library = "-- init
-local player = game.Players.LocalPlayer
+local library = "local player = game.Players.LocalPlayer
 local mouse = player:GetMouse()
 
 local input = game:GetService("UserInputService")
