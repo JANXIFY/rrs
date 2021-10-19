@@ -1,0 +1,3141 @@
+local triggerBoton
+local rageon
+
+local noSpreadon
+local noRecoilon
+local noSpeedReductionon
+local infAmmoon
+local automaticOn
+
+local noBulletHoleson
+local noParticleson
+local noTrailson
+
+local infJumpon
+local noclipon
+local walkspeed = 23.32
+
+local silentAimon
+local silentAimPart = "Head"
+local preferedSilentAimMode = "getClosestToCharacter"
+local silentAimOneShot
+
+local playerNamesOn
+local playerNamesPaused = false
+
+local tracersOn
+local espPaused = false
+
+local tracersColor = Color3.fromRGB(255, 105, 195)
+local playerNamesColor = Color3.fromRGB(255, 105, 195)
+local boxesColor = Color3.fromRGB(255, 105, 195)
+local useDefaultTeamColors = false
+
+local showDistanceOn
+local showDistancePaused = false
+
+local showHealthOn
+local showHealthPaused = false
+
+local espon
+local boxesOn
+local boxesPaused = false
+
+local aimbotOn
+local aimbotEnabled
+local aimbotKey = Enum.KeyCode.T
+local aimbotPart = "Head"
+
+local toggleUIKey = Enum.KeyCode.RightShift
+
+local Client
+for i,v in pairs(getgc(true)) do
+	if type(v) == "table" and rawget(v, "mode") then
+		Client = v;
+	end
+end
+local JumpPower = Client.JP
+
+function Action(Object, Function) if Object ~= nil then Function(Object) end end
+
+local oldFireBullet
+
+local mt = getrawmetatable(game)
+local old = mt.__namecall
+oldFireBullet = mt.__namecall
+
+local wkspc = Client.wkspc
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+local Camera = Workspace.CurrentCamera
+
+local WTVP = Camera.WorldToViewportPoint
+local WorldToViewport = function(...) return WTVP(Camera, ...) end
+local WTSP = Camera.WorldToScreenPoint
+local WorldToScreen = function(...) return WTSP(Camera, ...) end
+
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/GreenDeno/Venyx-UI-Library/main/source.lua"))()
+local venyx = library.new("Arsenal", 5013109572)
+
+local aimPage = venyx:addPage("Aim", 5012544693)
+local aimbotSection = aimPage:addSection("Aimbot")
+local silentAimSection = aimPage:addSection("Silent Aim")
+local othersSection = aimPage:addSection("Others")
+
+local espPage = venyx:addPage("ESP", 5012544693)
+local espFeaturesSection = espPage:addSection("Features")
+local espColorsSection = espPage:addSection("Colors")
+
+local weaponsPage = venyx:addPage("Weapons", 5012544693)
+local mainWeaponsSection = weaponsPage:addSection("Weapons Mods")
+local miscWeaponsSection = weaponsPage:addSection("Misc")
+
+local playerPage = venyx:addPage("Player", 5012544693)
+local playerSection = playerPage:addSection("Player Mods")
+
+local creditsPage = venyx:addPage("Credits", 5012544693)
+local creditsSection = creditsPage:addSection("Scripting by Compl1cated#9058")
+local creditsSection2 = creditsPage:addSection("UI Library - Venyx")
+
+local player = game.Players.LocalPlayer
+local mouse = player:GetMouse()
+
+local input = game:GetService("UserInputService")
+local run = game:GetService("RunService")
+local tween = game:GetService("TweenService")
+local tweeninfo = TweenInfo.new
+
+local utility = {}
+
+local objects = {}
+local themes = {
+	Background = Color3.fromRGB(24, 24, 24), 
+	Glow = Color3.fromRGB(0, 0, 0), 
+	Accent = Color3.fromRGB(10, 10, 10), 
+	LightContrast = Color3.fromRGB(20, 20, 20), 
+	DarkContrast = Color3.fromRGB(14, 14, 14),  
+	TextColor = Color3.fromRGB(255, 255, 255)
+}
+
+do
+	function utility:Create(instance, properties, children)
+		local object = Instance.new(instance)
+		
+		for i, v in pairs(properties or {}) do
+			object[i] = v
+			
+			if typeof(v) == "Color3" then -- save for theme changer later
+				local theme = utility:Find(themes, v)
+				
+				if theme then
+					objects[theme] = objects[theme] or {}
+					objects[theme][i] = objects[theme][i] or setmetatable({}, {_mode = "k"})
+					
+					table.insert(objects[theme][i], object)
+				end
+			end
+		end
+		
+		for i, module in pairs(children or {}) do
+			module.Parent = object
+		end
+		
+		return object
+	end
+	
+	function utility:Tween(instance, properties, duration, ...)
+		tween:Create(instance, tweeninfo(duration, ...), properties):Play()
+	end
+	
+	function utility:Wait()
+		run.RenderStepped:Wait()
+		return true
+	end
+	
+	function utility:Find(table, value) -- table.find doesn't work for dictionaries
+		for i, v in  pairs(table) do
+			if v == value then
+				return i
+			end
+		end
+	end
+	
+	function utility:Sort(pattern, values)
+		local new = {}
+		pattern = pattern:lower()
+		
+		if pattern == "" then
+			return values
+		end
+		
+		for i, value in pairs(values) do
+			if tostring(value):lower():find(pattern) then
+				table.insert(new, value)
+			end
+		end
+		
+		return new
+	end
+	
+	function utility:Pop(object, shrink)
+		local clone = object:Clone()
+		
+		clone.AnchorPoint = Vector2.new(0.5, 0.5)
+		clone.Size = clone.Size - UDim2.new(0, shrink, 0, shrink)
+		clone.Position = UDim2.new(0.5, 0, 0.5, 0)
+		
+		clone.Parent = object
+		clone:ClearAllChildren()
+		
+		object.ImageTransparency = 1
+		utility:Tween(clone, {Size = object.Size}, 0.2)
+		
+		spawn(function()
+			wait(0.2)
+		
+			object.ImageTransparency = 0
+			clone:Destroy()
+		end)
+		
+		return clone
+	end
+	
+	function utility:InitializeKeybind()
+		self.keybinds = {}
+		self.ended = {}
+		
+		input.InputBegan:Connect(function(key)
+			if self.keybinds[key.KeyCode] then
+				for i, bind in pairs(self.keybinds[key.KeyCode]) do
+					bind()
+				end
+			end
+		end)
+		
+		input.InputEnded:Connect(function(key)
+			if key.UserInputType == Enum.UserInputType.MouseButton1 then
+				for i, callback in pairs(self.ended) do
+					callback()
+				end
+			end
+		end)
+	end
+	
+	function utility:BindToKey(key, callback)
+		 
+		self.keybinds[key] = self.keybinds[key] or {}
+		
+		table.insert(self.keybinds[key], callback)
+		
+		return {
+			UnBind = function()
+				for i, bind in pairs(self.keybinds[key]) do
+					if bind == callback then
+						table.remove(self.keybinds[key], i)
+					end
+				end
+			end
+		}
+	end
+	
+	function utility:KeyPressed() -- yield until next key is pressed
+		local key = input.InputBegan:Wait()
+		
+		while key.UserInputType ~= Enum.UserInputType.Keyboard	 do
+			key = input.InputBegan:Wait()
+		end
+		
+		wait()
+		
+		return key
+	end
+	
+	function utility:DraggingEnabled(frame, parent)
+	
+		parent = parent or frame
+
+		local dragging = false
+		local dragInput, mousePos, framePos
+
+		frame.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				dragging = true
+				mousePos = input.Position
+				framePos = parent.Position
+				
+				input.Changed:Connect(function()
+					if input.UserInputState == Enum.UserInputState.End then
+						dragging = false
+					end
+				end)
+			end
+		end)
+
+		frame.InputChanged:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseMovement then
+				dragInput = input
+			end
+		end)
+
+		input.InputChanged:Connect(function(input)
+			if input == dragInput and dragging then
+				local delta = input.Position - mousePos
+				parent.Position  = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
+			end
+		end)
+
+	end
+	
+	function utility:DraggingEnded(callback)
+		table.insert(self.ended, callback)
+	end
+	
+end
+
+local library = {} -- main
+local page = {}
+local section = {}
+
+do
+	library.__index = library
+	page.__index = page
+	section.__index = section
+
+	function library.new(title)
+		local container = utility:Create("ScreenGui", {
+			Name = title,
+			Parent = game.CoreGui
+		}, {
+			utility:Create("ImageLabel", {
+				Name = "Main",
+				BackgroundTransparency = 1,
+				Position = UDim2.new(0.25, 0, 0.052435593, 0),
+				Size = UDim2.new(0, 511, 0, 428),
+				Image = "rbxassetid://4641149554",
+				ImageColor3 = themes.Background,
+				ScaleType = Enum.ScaleType.Slice,
+				SliceCenter = Rect.new(4, 4, 296, 296)
+			}, {
+				utility:Create("ImageLabel", {
+					Name = "Glow",
+					BackgroundTransparency = 1,
+					Position = UDim2.new(0, -15, 0, -15),
+					Size = UDim2.new(1, 30, 1, 30),
+					ZIndex = 0,
+					Image = "rbxassetid://5028857084",
+					ImageColor3 = themes.Glow,
+					ScaleType = Enum.ScaleType.Slice,
+					SliceCenter = Rect.new(24, 24, 276, 276)
+				}),
+				utility:Create("ImageLabel", {
+					Name = "Pages",
+					BackgroundTransparency = 1,
+					ClipsDescendants = true,
+					Position = UDim2.new(0, 0, 0, 38),
+					Size = UDim2.new(0, 126, 1, -38),
+					ZIndex = 3,
+					Image = "rbxassetid://5012534273",
+					ImageColor3 = themes.DarkContrast,
+					ScaleType = Enum.ScaleType.Slice,
+					SliceCenter = Rect.new(4, 4, 296, 296)
+				}, {
+					utility:Create("ScrollingFrame", {
+						Name = "Pages_Container",
+						Active = true,
+						BackgroundTransparency = 1,
+						Position = UDim2.new(0, 0, 0, 10),
+						Size = UDim2.new(1, 0, 1, -20),
+						CanvasSize = UDim2.new(0, 0, 0, 314),
+						ScrollBarThickness = 0
+					}, {
+						utility:Create("UIListLayout", {
+							SortOrder = Enum.SortOrder.LayoutOrder,
+							Padding = UDim.new(0, 10)
+						})
+					})
+				}),
+				utility:Create("ImageLabel", {
+					Name = "TopBar",
+					BackgroundTransparency = 1,
+					ClipsDescendants = true,
+					Size = UDim2.new(1, 0, 0, 38),
+					ZIndex = 5,
+					Image = "rbxassetid://4595286933",
+					ImageColor3 = themes.Accent,
+					ScaleType = Enum.ScaleType.Slice,
+					SliceCenter = Rect.new(4, 4, 296, 296)
+				}, {
+					utility:Create("TextLabel", { -- title
+						Name = "Title",
+						AnchorPoint = Vector2.new(0, 0.5),
+						BackgroundTransparency = 1,
+						Position = UDim2.new(0, 12, 0, 19),
+						Size = UDim2.new(1, -46, 0, 16),
+						ZIndex = 5,
+						Font = Enum.Font.GothamBold,
+						Text = title,
+						TextColor3 = themes.TextColor,
+						TextSize = 14,
+						TextXAlignment = Enum.TextXAlignment.Left
+					})
+				})
+			})
+		})
+		
+		utility:InitializeKeybind()
+		utility:DraggingEnabled(container.Main.TopBar, container.Main)
+		
+		return setmetatable({
+			container = container,
+			pagesContainer = container.Main.Pages.Pages_Container,
+			pages = {}
+		}, library)
+	end
+	
+	function page.new(library, title, icon)
+		local button = utility:Create("TextButton", {
+			Name = title,
+			Parent = library.pagesContainer,
+			BackgroundTransparency = 1,
+			BorderSizePixel = 0,
+			Size = UDim2.new(1, 0, 0, 26),
+			ZIndex = 3,
+			AutoButtonColor = false,
+			Font = Enum.Font.Gotham,
+			Text = "",
+			TextSize = 14
+		}, {
+			utility:Create("TextLabel", {
+				Name = "Title",
+				AnchorPoint = Vector2.new(0, 0.5),
+				BackgroundTransparency = 1,
+				Position = UDim2.new(0, 40, 0.5, 0),
+				Size = UDim2.new(0, 76, 1, 0),
+				ZIndex = 3,
+				Font = Enum.Font.Gotham,
+				Text = title,
+				TextColor3 = themes.TextColor,
+				TextSize = 12,
+				TextTransparency = 0.65,
+				TextXAlignment = Enum.TextXAlignment.Left
+			}),
+			icon and utility:Create("ImageLabel", {
+				Name = "Icon", 
+				AnchorPoint = Vector2.new(0, 0.5),
+				BackgroundTransparency = 1,
+				Position = UDim2.new(0, 12, 0.5, 0),
+				Size = UDim2.new(0, 16, 0, 16),
+				ZIndex = 3,
+				Image = "rbxassetid://" .. tostring(icon),
+				ImageColor3 = themes.TextColor,
+				ImageTransparency = 0.64,
+				ScaleType = Enum.ScaleType.Fit
+			}) or {}
+		})
+		
+		local container = utility:Create("ScrollingFrame", {
+			Name = title,
+			Parent = library.container.Main,
+			Active = true,
+			BackgroundTransparency = 1,
+			BorderSizePixel = 0,
+			Position = UDim2.new(0, 134, 0, 46),
+			Size = UDim2.new(1, -142, 1, -56),
+			CanvasSize = UDim2.new(0, 0, 0, 466),
+			ScrollBarThickness = 3,
+			ScrollBarImageColor3 = themes.DarkContrast,
+			Visible = false
+		}, {
+			utility:Create("UIListLayout", {
+				SortOrder = Enum.SortOrder.LayoutOrder,
+				Padding = UDim.new(0, 10)
+			})
+		})
+		
+		return setmetatable({
+			library = library,
+			container = container,
+			button = button,
+			sections = {}
+		}, page)
+	end
+	
+	function section.new(page, title)
+		local container = utility:Create("ImageLabel", {
+			Name = title,
+			Parent = page.container,
+			BackgroundTransparency = 1,
+			Size = UDim2.new(1, -10, 0, 28),
+			ZIndex = 2,
+			Image = "rbxassetid://5028857472",
+			ImageColor3 = themes.LightContrast,
+			ScaleType = Enum.ScaleType.Slice,
+			SliceCenter = Rect.new(4, 4, 296, 296),
+			ClipsDescendants = true
+		}, {
+			utility:Create("Frame", {
+				Name = "Container",
+				Active = true,
+				BackgroundTransparency = 1,
+				BorderSizePixel = 0,
+				Position = UDim2.new(0, 8, 0, 8),
+				Size = UDim2.new(1, -16, 1, -16)
+			}, {
+				utility:Create("TextLabel", {
+					Name = "Title",
+					BackgroundTransparency = 1,
+					Size = UDim2.new(1, 0, 0, 20),
+					ZIndex = 2,
+					Font = Enum.Font.GothamSemibold,
+					Text = title,
+					TextColor3 = themes.TextColor,
+					TextSize = 12,
+					TextXAlignment = Enum.TextXAlignment.Left,
+					TextTransparency = 1
+				}),
+				utility:Create("UIListLayout", {
+					SortOrder = Enum.SortOrder.LayoutOrder,
+					Padding = UDim.new(0, 4)
+				})
+			})
+		})
+		
+		return setmetatable({
+			page = page,
+			container = container.Container,
+			colorpickers = {},
+			modules = {},
+			binds = {},
+			lists = {},
+		}, section) 
+	end
+	
+	function library:addPage(...)
+	
+		local page = page.new(self, ...)
+		local button = page.button
+		
+		table.insert(self.pages, page)
+
+		button.MouseButton1Click:Connect(function()
+			self:SelectPage(page, true)
+		end)
+		
+		return page
+	end
+	
+	function page:addSection(...)
+		local section = section.new(self, ...)
+		
+		table.insert(self.sections, section)
+		
+		return section
+	end
+	
+	-- functions
+	
+	function library:setTheme(theme, color3)
+		themes[theme] = color3
+		
+		for property, objects in pairs(objects[theme]) do
+			for i, object in pairs(objects) do
+				if not object.Parent or (object.Name == "Button" and object.Parent.Name == "ColorPicker") then
+					objects[i] = nil -- i can do this because weak tables :D
+				else
+					object[property] = color3
+				end
+			end
+		end
+	end
+	
+	function library:toggle()
+	
+		if self.toggling then
+			return
+		end
+		
+		self.toggling = true
+		
+		local container = self.container.Main
+		local topbar = container.TopBar
+		
+		if self.position then
+			utility:Tween(container, {
+				Size = UDim2.new(0, 511, 0, 428),
+				Position = self.position
+			}, 0.2)
+			wait(0.2)
+			
+			utility:Tween(topbar, {Size = UDim2.new(1, 0, 0, 38)}, 0.2)
+			wait(0.2)
+			
+			container.ClipsDescendants = false
+			self.position = nil
+		else
+			self.position = container.Position
+			container.ClipsDescendants = true
+			
+			utility:Tween(topbar, {Size = UDim2.new(1, 0, 1, 0)}, 0.2)
+			wait(0.2)
+			
+			utility:Tween(container, {
+				Size = UDim2.new(0, 511, 0, 0),
+				Position = self.position + UDim2.new(0, 0, 0, 428)
+			}, 0.2)
+			wait(0.2)
+		end
+		
+		self.toggling = false
+	end
+	
+	-- new modules
+	
+	function library:Notify(title, text, callback)
+	
+		-- overwrite last notification
+		if self.activeNotification then
+			self.activeNotification = self.activeNotification()
+		end
+		
+		-- standard create
+		local notification = utility:Create("ImageLabel", {
+			Name = "Notification",
+			Parent = self.container,
+			BackgroundTransparency = 1,
+			Size = UDim2.new(0, 200, 0, 60),
+			Image = "rbxassetid://5028857472",
+			ImageColor3 = themes.Background,
+			ScaleType = Enum.ScaleType.Slice,
+			SliceCenter = Rect.new(4, 4, 296, 296),
+			ZIndex = 3,
+			ClipsDescendants = true
+		}, {
+			utility:Create("ImageLabel", {
+				Name = "Flash",
+				Size = UDim2.new(1, 0, 1, 0),
+				BackgroundTransparency = 1,
+				Image = "rbxassetid://4641149554",
+				ImageColor3 = themes.TextColor,
+				ZIndex = 5
+			}),
+			utility:Create("ImageLabel", {
+				Name = "Glow",
+				BackgroundTransparency = 1,
+				Position = UDim2.new(0, -15, 0, -15),
+				Size = UDim2.new(1, 30, 1, 30),
+				ZIndex = 2,
+				Image = "rbxassetid://5028857084",
+				ImageColor3 = themes.Glow,
+				ScaleType = Enum.ScaleType.Slice,
+				SliceCenter = Rect.new(24, 24, 276, 276)
+			}),
+			utility:Create("TextLabel", {
+				Name = "Title",
+				BackgroundTransparency = 1,
+				Position = UDim2.new(0, 10, 0, 8),
+				Size = UDim2.new(1, -40, 0, 16),
+				ZIndex = 4,
+				Font = Enum.Font.GothamSemibold,
+				TextColor3 = themes.TextColor,
+				TextSize = 14.000,
+				TextXAlignment = Enum.TextXAlignment.Left
+			}),
+			utility:Create("TextLabel", {
+				Name = "Text",
+				BackgroundTransparency = 1,
+				Position = UDim2.new(0, 10, 1, -24),
+				Size = UDim2.new(1, -40, 0, 16),
+				ZIndex = 4,
+				Font = Enum.Font.Gotham,
+				TextColor3 = themes.TextColor,
+				TextSize = 12.000,
+				TextXAlignment = Enum.TextXAlignment.Left
+			}),
+			utility:Create("ImageButton", {
+				Name = "Accept",
+				BackgroundTransparency = 1,
+				Position = UDim2.new(1, -26, 0, 8),
+				Size = UDim2.new(0, 16, 0, 16),
+				Image = "rbxassetid://5012538259",
+				ImageColor3 = themes.TextColor,
+				ZIndex = 4
+			}),
+			utility:Create("ImageButton", {
+				Name = "Decline",
+				BackgroundTransparency = 1,
+				Position = UDim2.new(1, -26, 1, -24),
+				Size = UDim2.new(0, 16, 0, 16),
+				Image = "rbxassetid://5012538583",
+				ImageColor3 = themes.TextColor,
+				ZIndex = 4
+			})
+		})
+    
+		utility:DraggingEnabled(notification)
+		
+		title = title or "Notification"
+		text = text or ""
+		
+		notification.Title.Text = title
+		notification.Text.Text = text
+		
+		local padding = 10
+		local textSize = game:GetService("TextService"):GetTextSize(text, 12, Enum.Font.Gotham, Vector2.new(math.huge, 16))
+		
+		notification.Position = library.lastNotification or UDim2.new(0, padding, 1, -(notification.AbsoluteSize.Y + padding))
+		notification.Size = UDim2.new(0, 0, 0, 60)
+		
+		utility:Tween(notification, {Size = UDim2.new(0, textSize.X + 70, 0, 60)}, 0.2)
+		wait(0.2)
+		
+		notification.ClipsDescendants = false
+		utility:Tween(notification.Flash, {
+			Size = UDim2.new(0, 0, 0, 60),
+			Position = UDim2.new(1, 0, 0, 0)
+		}, 0.2)
+
+		local active = true
+		local close = function()
+		
+			if not active then
+				return
+			end
+			
+			active = false
+			notification.ClipsDescendants = true
+			
+			library.lastNotification = notification.Position
+			notification.Flash.Position = UDim2.new(0, 0, 0, 0)
+			utility:Tween(notification.Flash, {Size = UDim2.new(1, 0, 1, 0)}, 0.2)
+			
+			wait(0.2)
+			utility:Tween(notification, {
+				Size = UDim2.new(0, 0, 0, 60),
+				Position = notification.Position + UDim2.new(0, textSize.X + 70, 0, 0)
+			}, 0.2)
+			
+			wait(0.2)
+			notification:Destroy()
+		end
+		
+		self.activeNotification = close
+		
+		notification.Accept.MouseButton1Click:Connect(function()
+		
+			if not active then 
+				return
+			end
+			
+			if callback then
+				callback(true)
+			end
+			
+			close()
+		end)
+		
+		notification.Decline.MouseButton1Click:Connect(function()
+		
+			if not active then 
+				return
+			end
+			
+			if callback then
+				callback(false)
+			end
+			
+			close()
+		end)
+	end
+	
+	function section:addButton(title, callback)
+		local button = utility:Create("ImageButton", {
+			Name = "Button",
+			Parent = self.container,
+			BackgroundTransparency = 1,
+			BorderSizePixel = 0,
+			Size = UDim2.new(1, 0, 0, 30),
+			ZIndex = 2,
+			Image = "rbxassetid://5028857472",
+			ImageColor3 = themes.DarkContrast,
+			ScaleType = Enum.ScaleType.Slice,
+			SliceCenter = Rect.new(2, 2, 298, 298)
+		}, {
+			utility:Create("TextLabel", {
+				Name = "Title",
+				BackgroundTransparency = 1,
+				Size = UDim2.new(1, 0, 1, 0),
+				ZIndex = 3,
+				Font = Enum.Font.Gotham,
+				Text = title,
+				TextColor3 = themes.TextColor,
+				TextSize = 12,
+				TextTransparency = 0.10000000149012
+			})
+		})
+		
+		table.insert(self.modules, button)
+		--self:Resize()
+		
+		local text = button.Title
+		local debounce
+		
+		button.MouseButton1Click:Connect(function()
+			
+			if debounce then
+				return
+			end
+			
+			-- animation
+			utility:Pop(button, 10)
+			
+			debounce = true
+			text.TextSize = 0
+			utility:Tween(button.Title, {TextSize = 14}, 0.2)
+			
+			wait(0.2)
+			utility:Tween(button.Title, {TextSize = 12}, 0.2)
+			
+			if callback then
+				callback(function(...)
+					self:updateButton(button, ...)
+				end)
+			end
+			
+			debounce = false
+		end)
+		
+		return button
+	end
+	
+	function section:addToggle(title, default, callback)
+		local toggle = utility:Create("ImageButton", {
+			Name = "Toggle",
+			Parent = self.container,
+			BackgroundTransparency = 1,
+			BorderSizePixel = 0,
+			Size = UDim2.new(1, 0, 0, 30),
+			ZIndex = 2,
+			Image = "rbxassetid://5028857472",
+			ImageColor3 = themes.DarkContrast,
+			ScaleType = Enum.ScaleType.Slice,
+			SliceCenter = Rect.new(2, 2, 298, 298)
+		},{
+			utility:Create("TextLabel", {
+				Name = "Title",
+				AnchorPoint = Vector2.new(0, 0.5),
+				BackgroundTransparency = 1,
+				Position = UDim2.new(0, 10, 0.5, 1),
+				Size = UDim2.new(0.5, 0, 1, 0),
+				ZIndex = 3,
+				Font = Enum.Font.Gotham,
+				Text = title,
+				TextColor3 = themes.TextColor,
+				TextSize = 12,
+				TextTransparency = 0.10000000149012,
+				TextXAlignment = Enum.TextXAlignment.Left
+			}),
+			utility:Create("ImageLabel", {
+				Name = "Button",
+				BackgroundTransparency = 1,
+				BorderSizePixel = 0,
+				Position = UDim2.new(1, -50, 0.5, -8),
+				Size = UDim2.new(0, 40, 0, 16),
+				ZIndex = 2,
+				Image = "rbxassetid://5028857472",
+				ImageColor3 = themes.LightContrast,
+				ScaleType = Enum.ScaleType.Slice,
+				SliceCenter = Rect.new(2, 2, 298, 298)
+			}, {
+				utility:Create("ImageLabel", {
+					Name = "Frame",
+					BackgroundTransparency = 1,
+					Position = UDim2.new(0, 2, 0.5, -6),
+					Size = UDim2.new(1, -22, 1, -4),
+					ZIndex = 2,
+					Image = "rbxassetid://5028857472",
+					ImageColor3 = themes.TextColor,
+					ScaleType = Enum.ScaleType.Slice,
+					SliceCenter = Rect.new(2, 2, 298, 298)
+				})
+			})
+		})
+		
+		table.insert(self.modules, toggle)
+		--self:Resize()
+		
+		local active = default
+		self:updateToggle(toggle, nil, active)
+		
+		toggle.MouseButton1Click:Connect(function()
+			active = not active
+			self:updateToggle(toggle, nil, active)
+			
+			if callback then
+				callback(active, function(...)
+					self:updateToggle(toggle, ...)
+				end)
+			end
+		end)
+		
+		return toggle
+	end
+	
+	function section:addTextbox(title, default, callback)
+		local textbox = utility:Create("ImageButton", {
+			Name = "Textbox",
+			Parent = self.container,
+			BackgroundTransparency = 1,
+			BorderSizePixel = 0,
+			Size = UDim2.new(1, 0, 0, 30),
+			ZIndex = 2,
+			Image = "rbxassetid://5028857472",
+			ImageColor3 = themes.DarkContrast,
+			ScaleType = Enum.ScaleType.Slice,
+			SliceCenter = Rect.new(2, 2, 298, 298)
+		}, {
+			utility:Create("TextLabel", {
+				Name = "Title",
+				AnchorPoint = Vector2.new(0, 0.5),
+				BackgroundTransparency = 1,
+				Position = UDim2.new(0, 10, 0.5, 1),
+				Size = UDim2.new(0.5, 0, 1, 0),
+				ZIndex = 3,
+				Font = Enum.Font.Gotham,
+				Text = title,
+				TextColor3 = themes.TextColor,
+				TextSize = 12,
+				TextTransparency = 0.10000000149012,
+				TextXAlignment = Enum.TextXAlignment.Left
+			}),
+			utility:Create("ImageLabel", {
+				Name = "Button",
+				BackgroundTransparency = 1,
+				Position = UDim2.new(1, -110, 0.5, -8),
+				Size = UDim2.new(0, 100, 0, 16),
+				ZIndex = 2,
+				Image = "rbxassetid://5028857472",
+				ImageColor3 = themes.LightContrast,
+				ScaleType = Enum.ScaleType.Slice,
+				SliceCenter = Rect.new(2, 2, 298, 298)
+			}, {
+				utility:Create("TextBox", {
+					Name = "Textbox", 
+					BackgroundTransparency = 1,
+					TextTruncate = Enum.TextTruncate.AtEnd,
+					Position = UDim2.new(0, 5, 0, 0),
+					Size = UDim2.new(1, -10, 1, 0),
+					ZIndex = 3,
+					Font = Enum.Font.GothamSemibold,
+					Text = default or "",
+					TextColor3 = themes.TextColor,
+					TextSize = 11
+				})
+			})
+		})
+		
+		table.insert(self.modules, textbox)
+		--self:Resize()
+		
+		local button = textbox.Button
+		local input = button.Textbox
+		
+		textbox.MouseButton1Click:Connect(function()
+		
+			if textbox.Button.Size ~= UDim2.new(0, 100, 0, 16) then
+				return
+			end
+			
+			utility:Tween(textbox.Button, {
+				Size = UDim2.new(0, 200, 0, 16),
+				Position = UDim2.new(1, -210, 0.5, -8)
+			}, 0.2)
+			
+			wait()
+
+			input.TextXAlignment = Enum.TextXAlignment.Left
+			input:CaptureFocus()
+		end)
+		
+		input:GetPropertyChangedSignal("Text"):Connect(function()
+			
+			if button.ImageTransparency == 0 and (button.Size == UDim2.new(0, 200, 0, 16) or button.Size == UDim2.new(0, 100, 0, 16)) then -- i know, i dont like this either
+				utility:Pop(button, 10)
+			end
+			
+			if callback then
+				callback(input.Text, nil, function(...)
+					self:updateTextbox(textbox, ...)
+				end)
+			end
+		end)
+		
+		input.FocusLost:Connect(function()
+			
+			input.TextXAlignment = Enum.TextXAlignment.Center
+			
+			utility:Tween(textbox.Button, {
+				Size = UDim2.new(0, 100, 0, 16),
+				Position = UDim2.new(1, -110, 0.5, -8)
+			}, 0.2)
+			
+			if callback then
+				callback(input.Text, true, function(...)
+					self:updateTextbox(textbox, ...)
+				end)
+			end
+		end)
+		
+		return textbox
+	end
+	
+	function section:addKeybind(title, default, callback, changedCallback)
+		local keybind = utility:Create("ImageButton", {
+			Name = "Keybind",
+			Parent = self.container,
+			BackgroundTransparency = 1,
+			BorderSizePixel = 0,
+			Size = UDim2.new(1, 0, 0, 30),
+			ZIndex = 2,
+			Image = "rbxassetid://5028857472",
+			ImageColor3 = themes.DarkContrast,
+			ScaleType = Enum.ScaleType.Slice,
+			SliceCenter = Rect.new(2, 2, 298, 298)
+		}, {
+			utility:Create("TextLabel", {
+				Name = "Title",
+				AnchorPoint = Vector2.new(0, 0.5),
+				BackgroundTransparency = 1,
+				Position = UDim2.new(0, 10, 0.5, 1),
+				Size = UDim2.new(1, 0, 1, 0),
+				ZIndex = 3,
+				Font = Enum.Font.Gotham,
+				Text = title,
+				TextColor3 = themes.TextColor,
+				TextSize = 12,
+				TextTransparency = 0.10000000149012,
+				TextXAlignment = Enum.TextXAlignment.Left
+			}),
+			utility:Create("ImageLabel", {
+				Name = "Button",
+				BackgroundTransparency = 1,
+				Position = UDim2.new(1, -110, 0.5, -8),
+				Size = UDim2.new(0, 100, 0, 16),
+				ZIndex = 2,
+				Image = "rbxassetid://5028857472",
+				ImageColor3 = themes.LightContrast,
+				ScaleType = Enum.ScaleType.Slice,
+				SliceCenter = Rect.new(2, 2, 298, 298)
+			}, {
+				utility:Create("TextLabel", {
+					Name = "Text",
+					BackgroundTransparency = 1,
+					ClipsDescendants = true,
+					Size = UDim2.new(1, 0, 1, 0),
+					ZIndex = 3,
+					Font = Enum.Font.GothamSemibold,
+					Text = default and default.Name or "None",
+					TextColor3 = themes.TextColor,
+					TextSize = 11
+				})
+			})
+		})
+		
+		table.insert(self.modules, keybind)
+		--self:Resize()
+		
+		local text = keybind.Button.Text
+		local button = keybind.Button
+		
+		local animate = function()
+			if button.ImageTransparency == 0 then
+				utility:Pop(button, 10)
+			end
+		end
+		
+		self.binds[keybind] = {callback = function()
+			animate()
+			
+			if callback then
+				callback(function(...)
+					self:updateKeybind(keybind, ...)
+				end)
+			end
+		end}
+		
+		if default and callback then
+			self:updateKeybind(keybind, nil, default)
+		end
+		
+		keybind.MouseButton1Click:Connect(function()
+			
+			animate()
+			
+			if self.binds[keybind].connection then -- unbind
+				return self:updateKeybind(keybind)
+			end
+			
+			if text.Text == "None" then -- new bind
+				text.Text = "..."
+				
+				local key = utility:KeyPressed()
+				
+				self:updateKeybind(keybind, nil, key.KeyCode)
+				animate()
+				
+				if changedCallback then
+					changedCallback(key, function(...)
+						self:updateKeybind(keybind, ...)
+					end)
+				end
+			end
+		end)
+		
+		return keybind
+	end
+	
+	function section:addColorPicker(title, default, callback)
+		local colorpicker = utility:Create("ImageButton", {
+			Name = "ColorPicker",
+			Parent = self.container,
+			BackgroundTransparency = 1,
+			BorderSizePixel = 0,
+			Size = UDim2.new(1, 0, 0, 30),
+			ZIndex = 2,
+			Image = "rbxassetid://5028857472",
+			ImageColor3 = themes.DarkContrast,
+			ScaleType = Enum.ScaleType.Slice,
+			SliceCenter = Rect.new(2, 2, 298, 298)
+		},{
+			utility:Create("TextLabel", {
+				Name = "Title",
+				AnchorPoint = Vector2.new(0, 0.5),
+				BackgroundTransparency = 1,
+				Position = UDim2.new(0, 10, 0.5, 1),
+				Size = UDim2.new(0.5, 0, 1, 0),
+				ZIndex = 3,
+				Font = Enum.Font.Gotham,
+				Text = title,
+				TextColor3 = themes.TextColor,
+				TextSize = 12,
+				TextTransparency = 0.10000000149012,
+				TextXAlignment = Enum.TextXAlignment.Left
+			}),
+			utility:Create("ImageButton", {
+				Name = "Button",
+				BackgroundTransparency = 1,
+				BorderSizePixel = 0,
+				Position = UDim2.new(1, -50, 0.5, -7),
+				Size = UDim2.new(0, 40, 0, 14),
+				ZIndex = 2,
+				Image = "rbxassetid://5028857472",
+				ImageColor3 = Color3.fromRGB(255, 255, 255),
+				ScaleType = Enum.ScaleType.Slice,
+				SliceCenter = Rect.new(2, 2, 298, 298)
+			})
+		})
+		
+		local tab = utility:Create("ImageLabel", {
+			Name = "ColorPicker",
+			Parent = self.page.library.container,
+			BackgroundTransparency = 1,
+			Position = UDim2.new(0.75, 0, 0.400000006, 0),
+			Selectable = true,
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Size = UDim2.new(0, 162, 0, 169),
+			Image = "rbxassetid://5028857472",
+			ImageColor3 = themes.Background,
+			ScaleType = Enum.ScaleType.Slice,
+			SliceCenter = Rect.new(2, 2, 298, 298),
+			Visible = false,
+		}, {
+			utility:Create("ImageLabel", {
+				Name = "Glow",
+				BackgroundTransparency = 1,
+				Position = UDim2.new(0, -15, 0, -15),
+				Size = UDim2.new(1, 30, 1, 30),
+				ZIndex = 0,
+				Image = "rbxassetid://5028857084",
+				ImageColor3 = themes.Glow,
+				ScaleType = Enum.ScaleType.Slice,
+				SliceCenter = Rect.new(22, 22, 278, 278)
+			}),
+			utility:Create("TextLabel", {
+				Name = "Title",
+				BackgroundTransparency = 1,
+				Position = UDim2.new(0, 10, 0, 8),
+				Size = UDim2.new(1, -40, 0, 16),
+				ZIndex = 2,
+				Font = Enum.Font.GothamSemibold,
+				Text = title,
+				TextColor3 = themes.TextColor,
+				TextSize = 14,
+				TextXAlignment = Enum.TextXAlignment.Left
+			}),
+			utility:Create("ImageButton", {
+				Name = "Close",
+				BackgroundTransparency = 1,
+				Position = UDim2.new(1, -26, 0, 8),
+				Size = UDim2.new(0, 16, 0, 16),
+				ZIndex = 2,
+				Image = "rbxassetid://5012538583",
+				ImageColor3 = themes.TextColor
+			}), 
+			utility:Create("Frame", {
+				Name = "Container",
+				BackgroundTransparency = 1,
+				Position = UDim2.new(0, 8, 0, 32),
+				Size = UDim2.new(1, -18, 1, -40)
+			}, {
+				utility:Create("UIListLayout", {
+					SortOrder = Enum.SortOrder.LayoutOrder,
+					Padding = UDim.new(0, 6)
+				}),
+				utility:Create("ImageButton", {
+					Name = "Canvas",
+					BackgroundTransparency = 1,
+					BorderColor3 = themes.LightContrast,
+					Size = UDim2.new(1, 0, 0, 60),
+					AutoButtonColor = false,
+					Image = "rbxassetid://5108535320",
+					ImageColor3 = Color3.fromRGB(255, 0, 0),
+					ScaleType = Enum.ScaleType.Slice,
+					SliceCenter = Rect.new(2, 2, 298, 298)
+				}, {
+					utility:Create("ImageLabel", {
+						Name = "White_Overlay",
+						BackgroundTransparency = 1,
+						Size = UDim2.new(1, 0, 0, 60),
+						Image = "rbxassetid://5107152351",
+						SliceCenter = Rect.new(2, 2, 298, 298)
+					}),
+					utility:Create("ImageLabel", {
+						Name = "Black_Overlay",
+						BackgroundTransparency = 1,
+						Size = UDim2.new(1, 0, 0, 60),
+						Image = "rbxassetid://5107152095",
+						SliceCenter = Rect.new(2, 2, 298, 298)
+					}),
+					utility:Create("ImageLabel", {
+						Name = "Cursor",
+						BackgroundColor3 = themes.TextColor,
+						AnchorPoint = Vector2.new(0.5, 0.5),
+						BackgroundTransparency = 1.000,
+						Size = UDim2.new(0, 10, 0, 10),
+						Position = UDim2.new(0, 0, 0, 0),
+						Image = "rbxassetid://5100115962",
+						SliceCenter = Rect.new(2, 2, 298, 298)
+					})
+				}),
+				utility:Create("ImageButton", {
+					Name = "Color",
+					BackgroundTransparency = 1,
+					BorderSizePixel = 0,
+					Position = UDim2.new(0, 0, 0, 4),
+					Selectable = false,
+					Size = UDim2.new(1, 0, 0, 16),
+					ZIndex = 2,
+					AutoButtonColor = false,
+					Image = "rbxassetid://5028857472",
+					ScaleType = Enum.ScaleType.Slice,
+					SliceCenter = Rect.new(2, 2, 298, 298)
+				}, {
+					utility:Create("Frame", {
+						Name = "Select",
+						BackgroundColor3 = themes.TextColor,
+						BorderSizePixel = 1,
+						Position = UDim2.new(1, 0, 0, 0),
+						Size = UDim2.new(0, 2, 1, 0),
+						ZIndex = 2
+					}),
+					utility:Create("UIGradient", { -- rainbow canvas
+						Color = ColorSequence.new({
+							ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 0, 0)), 
+							ColorSequenceKeypoint.new(0.17, Color3.fromRGB(255, 255, 0)), 
+							ColorSequenceKeypoint.new(0.33, Color3.fromRGB(0, 255, 0)), 
+							ColorSequenceKeypoint.new(0.50, Color3.fromRGB(0, 255, 255)), 
+							ColorSequenceKeypoint.new(0.66, Color3.fromRGB(0, 0, 255)), 
+							ColorSequenceKeypoint.new(0.82, Color3.fromRGB(255, 0, 255)), 
+							ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 0, 0))
+						})
+					})
+				}),
+				utility:Create("Frame", {
+					Name = "Inputs",
+					BackgroundTransparency = 1,
+					Position = UDim2.new(0, 10, 0, 158),
+					Size = UDim2.new(1, 0, 0, 16)
+				}, {
+					utility:Create("UIListLayout", {
+						FillDirection = Enum.FillDirection.Horizontal,
+						SortOrder = Enum.SortOrder.LayoutOrder,
+						Padding = UDim.new(0, 6)
+					}),
+					utility:Create("ImageLabel", {
+						Name = "R",
+						BackgroundTransparency = 1,
+						BorderSizePixel = 0,
+						Size = UDim2.new(0.305, 0, 1, 0),
+						ZIndex = 2,
+						Image = "rbxassetid://5028857472",
+						ImageColor3 = themes.DarkContrast,
+						ScaleType = Enum.ScaleType.Slice,
+						SliceCenter = Rect.new(2, 2, 298, 298)
+					}, {
+						utility:Create("TextLabel", {
+							Name = "Text",
+							BackgroundTransparency = 1,
+							Size = UDim2.new(0.400000006, 0, 1, 0),
+							ZIndex = 2,
+							Font = Enum.Font.Gotham,
+							Text = "R:",
+							TextColor3 = themes.TextColor,
+							TextSize = 10.000
+						}),
+						utility:Create("TextBox", {
+							Name = "Textbox",
+							BackgroundTransparency = 1,
+							Position = UDim2.new(0.300000012, 0, 0, 0),
+							Size = UDim2.new(0.600000024, 0, 1, 0),
+							ZIndex = 2,
+							Font = Enum.Font.Gotham,
+							PlaceholderColor3 = themes.DarkContrast,
+							Text = "255",
+							TextColor3 = themes.TextColor,
+							TextSize = 10.000
+						})
+					}),
+					utility:Create("ImageLabel", {
+						Name = "G",
+						BackgroundTransparency = 1,
+						BorderSizePixel = 0,
+						Size = UDim2.new(0.305, 0, 1, 0),
+						ZIndex = 2,
+						Image = "rbxassetid://5028857472",
+						ImageColor3 = themes.DarkContrast,
+						ScaleType = Enum.ScaleType.Slice,
+						SliceCenter = Rect.new(2, 2, 298, 298)
+					}, {
+						utility:Create("TextLabel", {
+							Name = "Text",
+							BackgroundTransparency = 1,
+							ZIndex = 2,
+							Size = UDim2.new(0.400000006, 0, 1, 0),
+							Font = Enum.Font.Gotham,
+							Text = "G:",
+							TextColor3 = themes.TextColor,
+							TextSize = 10.000
+						}),
+						utility:Create("TextBox", {
+							Name = "Textbox",
+							BackgroundTransparency = 1,
+							Position = UDim2.new(0.300000012, 0, 0, 0),
+							Size = UDim2.new(0.600000024, 0, 1, 0),
+							ZIndex = 2,
+							Font = Enum.Font.Gotham,
+							Text = "255",
+							TextColor3 = themes.TextColor,
+							TextSize = 10.000
+						})
+					}),
+					utility:Create("ImageLabel", {
+						Name = "B",
+						BackgroundTransparency = 1,
+						BorderSizePixel = 0,
+						Size = UDim2.new(0.305, 0, 1, 0),
+						ZIndex = 2,
+						Image = "rbxassetid://5028857472",
+						ImageColor3 = themes.DarkContrast,
+						ScaleType = Enum.ScaleType.Slice,
+						SliceCenter = Rect.new(2, 2, 298, 298)
+					}, {
+						utility:Create("TextLabel", {
+							Name = "Text",
+							BackgroundTransparency = 1,
+							Size = UDim2.new(0.400000006, 0, 1, 0),
+							ZIndex = 2,
+							Font = Enum.Font.Gotham,
+							Text = "B:",
+							TextColor3 = themes.TextColor,
+							TextSize = 10.000
+						}),
+						utility:Create("TextBox", {
+							Name = "Textbox",
+							BackgroundTransparency = 1,
+							Position = UDim2.new(0.300000012, 0, 0, 0),
+							Size = UDim2.new(0.600000024, 0, 1, 0),
+							ZIndex = 2,
+							Font = Enum.Font.Gotham,
+							Text = "255",
+							TextColor3 = themes.TextColor,
+							TextSize = 10.000
+						})
+					}),
+				}),
+				utility:Create("ImageButton", {
+					Name = "Button",
+					BackgroundTransparency = 1,
+					BorderSizePixel = 0,
+					Size = UDim2.new(1, 0, 0, 20),
+					ZIndex = 2,
+					Image = "rbxassetid://5028857472",
+					ImageColor3 = themes.DarkContrast,
+					ScaleType = Enum.ScaleType.Slice,
+					SliceCenter = Rect.new(2, 2, 298, 298)
+				}, {
+					utility:Create("TextLabel", {
+						Name = "Text",
+						BackgroundTransparency = 1,
+						Size = UDim2.new(1, 0, 1, 0),
+						ZIndex = 3,
+						Font = Enum.Font.Gotham,
+						Text = "Submit",
+						TextColor3 = themes.TextColor,
+						TextSize = 11.000
+					})
+				})
+			})
+		})
+		
+		utility:DraggingEnabled(tab)
+		table.insert(self.modules, colorpicker)
+		--self:Resize()
+		
+		local allowed = {
+			[""] = true
+		}
+		
+		local canvas = tab.Container.Canvas
+		local color = tab.Container.Color
+		
+		local canvasSize, canvasPosition = canvas.AbsoluteSize, canvas.AbsolutePosition
+		local colorSize, colorPosition = color.AbsoluteSize, color.AbsolutePosition
+		
+		local draggingColor, draggingCanvas
+		
+		local color3 = default or Color3.fromRGB(255, 255, 255)
+		local hue, sat, brightness = 0, 0, 1
+		local rgb = {
+			r = 255,
+			g = 255,
+			b = 255
+		}
+		
+		self.colorpickers[colorpicker] = {
+			tab = tab,
+			callback = function(prop, value)
+				rgb[prop] = value
+				hue, sat, brightness = Color3.toHSV(Color3.fromRGB(rgb.r, rgb.g, rgb.b))
+			end
+		}
+		
+		local callback = function(value)
+			if callback then
+				callback(value, function(...)
+					self:updateColorPicker(colorpicker, ...)
+				end)
+			end
+		end
+		
+		utility:DraggingEnded(function()
+			draggingColor, draggingCanvas = false, false
+		end)
+		
+		if default then
+			self:updateColorPicker(colorpicker, nil, default)
+			
+			hue, sat, brightness = Color3.toHSV(default)
+			default = Color3.fromHSV(hue, sat, brightness)
+			
+			for i, prop in pairs({"r", "g", "b"}) do
+				rgb[prop] = default[prop:upper()] * 255
+			end
+		end
+		
+		for i, container in pairs(tab.Container.Inputs:GetChildren()) do -- i know what you are about to say, so shut up
+			if container:IsA("ImageLabel") then
+				local textbox = container.Textbox
+				local focused
+				
+				textbox.Focused:Connect(function()
+					focused = true
+				end)
+				
+				textbox.FocusLost:Connect(function()
+					focused = false
+					
+					if not tonumber(textbox.Text) then
+						textbox.Text = math.floor(rgb[container.Name:lower()])
+					end
+				end)
+				
+				textbox:GetPropertyChangedSignal("Text"):Connect(function()
+					local text = textbox.Text
+					
+					if not allowed[text] and not tonumber(text) then
+						textbox.Text = text:sub(1, #text - 1)
+					elseif focused and not allowed[text] then
+						rgb[container.Name:lower()] = math.clamp(tonumber(textbox.Text), 0, 255)
+						
+						local color3 = Color3.fromRGB(rgb.r, rgb.g, rgb.b)
+						hue, sat, brightness = Color3.toHSV(color3)
+						
+						self:updateColorPicker(colorpicker, nil, color3)
+						callback(color3)
+					end
+				end)
+			end
+		end
+		
+		canvas.MouseButton1Down:Connect(function()
+			draggingCanvas = true
+			
+			while draggingCanvas do
+				
+				local x, y = mouse.X, mouse.Y
+				
+				sat = math.clamp((x - canvasPosition.X) / canvasSize.X, 0, 1)
+				brightness = 1 - math.clamp((y - canvasPosition.Y) / canvasSize.Y, 0, 1)
+				
+				color3 = Color3.fromHSV(hue, sat, brightness)
+				
+				for i, prop in pairs({"r", "g", "b"}) do
+					rgb[prop] = color3[prop:upper()] * 255
+				end
+				
+				self:updateColorPicker(colorpicker, nil, {hue, sat, brightness}) -- roblox is literally retarded
+				utility:Tween(canvas.Cursor, {Position = UDim2.new(sat, 0, 1 - brightness, 0)}, 0.1) -- overwrite
+				
+				callback(color3)
+				utility:Wait()
+			end
+		end)
+		
+		color.MouseButton1Down:Connect(function()
+			draggingColor = true
+			
+			while draggingColor do
+			
+				hue = 1 - math.clamp(1 - ((mouse.X - colorPosition.X) / colorSize.X), 0, 1)
+				color3 = Color3.fromHSV(hue, sat, brightness)
+				
+				for i, prop in pairs({"r", "g", "b"}) do
+					rgb[prop] = color3[prop:upper()] * 255
+				end
+				
+				local x = hue -- hue is updated
+				self:updateColorPicker(colorpicker, nil, {hue, sat, brightness}) -- roblox is literally retarded
+				utility:Tween(tab.Container.Color.Select, {Position = UDim2.new(x, 0, 0, 0)}, 0.1) -- overwrite
+				
+				callback(color3)
+				utility:Wait()
+			end
+		end)
+		
+		-- click events
+		local button = colorpicker.Button
+		local toggle, debounce, animate
+		
+		lastColor = Color3.fromHSV(hue, sat, brightness)
+		animate = function(visible, overwrite)
+			
+			if overwrite then
+			
+				if not toggle then
+					return
+				end
+				
+				if debounce then
+					while debounce do
+						utility:Wait()
+					end
+				end
+			elseif not overwrite then
+				if debounce then 
+					return 
+				end
+				
+				if button.ImageTransparency == 0 then
+					utility:Pop(button, 10)
+				end
+			end
+			
+			toggle = visible
+			debounce = true
+			
+			if visible then
+			
+				if self.page.library.activePicker and self.page.library.activePicker ~= animate then
+					self.page.library.activePicker(nil, true)
+				end
+				
+				self.page.library.activePicker = animate
+				lastColor = Color3.fromHSV(hue, sat, brightness)
+				
+				local x1, x2 = button.AbsoluteSize.X / 2, 162--tab.AbsoluteSize.X
+				local px, py = button.AbsolutePosition.X, button.AbsolutePosition.Y
+				
+				tab.ClipsDescendants = true
+				tab.Visible = true
+				tab.Size = UDim2.new(0, 0, 0, 0)
+				
+				tab.Position = UDim2.new(0, x1 + x2 + px, 0, py)
+				utility:Tween(tab, {Size = UDim2.new(0, 162, 0, 169)}, 0.2)
+				
+				-- update size and position
+				wait(0.2)
+				tab.ClipsDescendants = false
+				
+				canvasSize, canvasPosition = canvas.AbsoluteSize, canvas.AbsolutePosition
+				colorSize, colorPosition = color.AbsoluteSize, color.AbsolutePosition
+			else
+				utility:Tween(tab, {Size = UDim2.new(0, 0, 0, 0)}, 0.2)
+				tab.ClipsDescendants = true
+				
+				wait(0.2)
+				tab.Visible = false
+			end
+			
+			debounce = false
+		end
+		
+		local toggleTab = function()
+			animate(not toggle)
+		end
+		
+		button.MouseButton1Click:Connect(toggleTab)
+		colorpicker.MouseButton1Click:Connect(toggleTab)
+		
+		tab.Container.Button.MouseButton1Click:Connect(function()
+			animate()
+		end)
+		
+		tab.Close.MouseButton1Click:Connect(function()
+			self:updateColorPicker(colorpicker, nil, lastColor)
+			animate()
+		end)
+		
+		return colorpicker
+	end
+	
+	function section:addSlider(title, default, min, max, callback)
+		local slider = utility:Create("ImageButton", {
+			Name = "Slider",
+			Parent = self.container,
+			BackgroundTransparency = 1,
+			BorderSizePixel = 0,
+			Position = UDim2.new(0.292817682, 0, 0.299145311, 0),
+			Size = UDim2.new(1, 0, 0, 50),
+			ZIndex = 2,
+			Image = "rbxassetid://5028857472",
+			ImageColor3 = themes.DarkContrast,
+			ScaleType = Enum.ScaleType.Slice,
+			SliceCenter = Rect.new(2, 2, 298, 298)
+		}, {
+			utility:Create("TextLabel", {
+				Name = "Title",
+				BackgroundTransparency = 1,
+				Position = UDim2.new(0, 10, 0, 6),
+				Size = UDim2.new(0.5, 0, 0, 16),
+				ZIndex = 3,
+				Font = Enum.Font.Gotham,
+				Text = title,
+				TextColor3 = themes.TextColor,
+				TextSize = 12,
+				TextTransparency = 0.10000000149012,
+				TextXAlignment = Enum.TextXAlignment.Left
+			}),
+			utility:Create("TextBox", {
+				Name = "TextBox",
+				BackgroundTransparency = 1,
+				BorderSizePixel = 0,
+				Position = UDim2.new(1, -30, 0, 6),
+				Size = UDim2.new(0, 20, 0, 16),
+				ZIndex = 3,
+				Font = Enum.Font.GothamSemibold,
+				Text = default or min,
+				TextColor3 = themes.TextColor,
+				TextSize = 12,
+				TextXAlignment = Enum.TextXAlignment.Right
+			}),
+			utility:Create("TextLabel", {
+				Name = "Slider",
+				BackgroundTransparency = 1,
+				Position = UDim2.new(0, 10, 0, 28),
+				Size = UDim2.new(1, -20, 0, 16),
+				ZIndex = 3,
+				Text = "",
+			}, {
+				utility:Create("ImageLabel", {
+					Name = "Bar",
+					AnchorPoint = Vector2.new(0, 0.5),
+					BackgroundTransparency = 1,
+					Position = UDim2.new(0, 0, 0.5, 0),
+					Size = UDim2.new(1, 0, 0, 4),
+					ZIndex = 3,
+					Image = "rbxassetid://5028857472",
+					ImageColor3 = themes.LightContrast,
+					ScaleType = Enum.ScaleType.Slice,
+					SliceCenter = Rect.new(2, 2, 298, 298)
+				}, {
+					utility:Create("ImageLabel", {
+						Name = "Fill",
+						BackgroundTransparency = 1,
+						Size = UDim2.new(0.8, 0, 1, 0),
+						ZIndex = 3,
+						Image = "rbxassetid://5028857472",
+						ImageColor3 = themes.TextColor,
+						ScaleType = Enum.ScaleType.Slice,
+						SliceCenter = Rect.new(2, 2, 298, 298)
+					}, {
+						utility:Create("ImageLabel", {
+							Name = "Circle",
+							AnchorPoint = Vector2.new(0.5, 0.5),
+							BackgroundTransparency = 1,
+							ImageTransparency = 1.000,
+							ImageColor3 = themes.TextColor,
+							Position = UDim2.new(1, 0, 0.5, 0),
+							Size = UDim2.new(0, 10, 0, 10),
+							ZIndex = 3,
+							Image = "rbxassetid://4608020054"
+						})
+					})
+				})
+			})
+		})
+		
+		table.insert(self.modules, slider)
+		--self:Resize()
+		
+		local allowed = {
+			[""] = true,
+			["-"] = true
+		}
+		
+		local textbox = slider.TextBox
+		local circle = slider.Slider.Bar.Fill.Circle
+		
+		local value = default or min
+		local dragging, last
+		
+		local callback = function(value)
+			if callback then
+				callback(value, function(...)
+					self:updateSlider(slider, ...)
+				end)
+			end
+		end
+		
+		self:updateSlider(slider, nil, value, min, max)
+		
+		utility:DraggingEnded(function()
+			dragging = false
+		end)
+
+		slider.MouseButton1Down:Connect(function(input)
+			dragging = true
+			
+			while dragging do
+				utility:Tween(circle, {ImageTransparency = 0}, 0.1)
+				
+				value = self:updateSlider(slider, nil, nil, min, max, value)
+				callback(value)
+				
+				utility:Wait()
+			end
+			
+			wait(0.5)
+			utility:Tween(circle, {ImageTransparency = 1}, 0.2)
+		end)
+		
+		textbox.FocusLost:Connect(function()
+			if not tonumber(textbox.Text) then
+				value = self:updateSlider(slider, nil, default or min, min, max)
+				callback(value)
+			end
+		end)
+		
+		textbox:GetPropertyChangedSignal("Text"):Connect(function()
+			local text = textbox.Text
+			
+			if not allowed[text] and not tonumber(text) then
+				textbox.Text = text:sub(1, #text - 1)
+			elseif not allowed[text] then	
+				value = self:updateSlider(slider, nil, tonumber(text) or value, min, max)
+				callback(value)
+			end
+		end)
+		
+		return slider
+	end
+	
+	function section:addDropdown(title, list, callback)
+		local dropdown = utility:Create("Frame", {
+			Name = "Dropdown",
+			Parent = self.container,
+			BackgroundTransparency = 1,
+			Size = UDim2.new(1, 0, 0, 30),
+			ClipsDescendants = true
+		}, {
+			utility:Create("UIListLayout", {
+				SortOrder = Enum.SortOrder.LayoutOrder,
+				Padding = UDim.new(0, 4)
+			}),
+			utility:Create("ImageLabel", {
+				Name = "Search",
+				BackgroundTransparency = 1,
+				BorderSizePixel = 0,
+				Size = UDim2.new(1, 0, 0, 30),
+				ZIndex = 2,
+				Image = "rbxassetid://5028857472",
+				ImageColor3 = themes.DarkContrast,
+				ScaleType = Enum.ScaleType.Slice,
+				SliceCenter = Rect.new(2, 2, 298, 298)
+			}, {
+				utility:Create("TextBox", {
+					Name = "TextBox",
+					AnchorPoint = Vector2.new(0, 0.5),
+					BackgroundTransparency = 1,
+					TextTruncate = Enum.TextTruncate.AtEnd,
+					Position = UDim2.new(0, 10, 0.5, 1),
+					Size = UDim2.new(1, -42, 1, 0),
+					ZIndex = 3,
+					Font = Enum.Font.Gotham,
+					Text = title,
+					TextColor3 = themes.TextColor,
+					TextSize = 12,
+					TextTransparency = 0.10000000149012,
+					TextXAlignment = Enum.TextXAlignment.Left
+				}),
+				utility:Create("ImageButton", {
+					Name = "Button",
+					BackgroundTransparency = 1,
+					BorderSizePixel = 0,
+					Position = UDim2.new(1, -28, 0.5, -9),
+					Size = UDim2.new(0, 18, 0, 18),
+					ZIndex = 3,
+					Image = "rbxassetid://5012539403",
+					ImageColor3 = themes.TextColor,
+					SliceCenter = Rect.new(2, 2, 298, 298)
+				})
+			}),
+			utility:Create("ImageLabel", {
+				Name = "List",
+				BackgroundTransparency = 1,
+				BorderSizePixel = 0,
+				Size = UDim2.new(1, 0, 1, -34),
+				ZIndex = 2,
+				Image = "rbxassetid://5028857472",
+				ImageColor3 = themes.Background,
+				ScaleType = Enum.ScaleType.Slice,
+				SliceCenter = Rect.new(2, 2, 298, 298)
+			}, {
+				utility:Create("ScrollingFrame", {
+					Name = "Frame",
+					Active = true,
+					BackgroundTransparency = 1,
+					BorderSizePixel = 0,
+					Position = UDim2.new(0, 4, 0, 4),
+					Size = UDim2.new(1, -8, 1, -8),
+					CanvasPosition = Vector2.new(0, 28),
+					CanvasSize = UDim2.new(0, 0, 0, 120),
+					ZIndex = 2,
+					ScrollBarThickness = 3,
+					ScrollBarImageColor3 = themes.DarkContrast
+				}, {
+					utility:Create("UIListLayout", {
+						SortOrder = Enum.SortOrder.LayoutOrder,
+						Padding = UDim.new(0, 4)
+					})
+				})
+			})
+		})
+		
+		table.insert(self.modules, dropdown)
+		--self:Resize()
+		
+		local search = dropdown.Search
+		local focused
+		
+		list = list or {}
+		
+		search.Button.MouseButton1Click:Connect(function()
+			if search.Button.Rotation == 0 then
+				self:updateDropdown(dropdown, nil, list, callback)
+			else
+				self:updateDropdown(dropdown, nil, nil, callback)
+			end
+		end)
+		
+		search.TextBox.Focused:Connect(function()
+			if search.Button.Rotation == 0 then
+				self:updateDropdown(dropdown, nil, list, callback)
+			end
+			
+			focused = true
+		end)
+		
+		search.TextBox.FocusLost:Connect(function()
+			focused = false
+		end)
+		
+		search.TextBox:GetPropertyChangedSignal("Text"):Connect(function()
+			if focused then
+				local list = utility:Sort(search.TextBox.Text, list)
+				list = #list ~= 0 and list 
+				
+				self:updateDropdown(dropdown, nil, list, callback)
+			end
+		end)
+		
+		dropdown:GetPropertyChangedSignal("Size"):Connect(function()
+			self:Resize()
+		end)
+		
+		return dropdown
+	end
+	
+	-- class functions
+	
+	function library:SelectPage(page, toggle)
+		
+		if toggle and self.focusedPage == page then -- already selected
+			return
+		end
+		
+		local button = page.button
+		
+		if toggle then
+			-- page button
+			button.Title.TextTransparency = 0
+			button.Title.Font = Enum.Font.GothamSemibold
+			
+			if button:FindFirstChild("Icon") then
+				button.Icon.ImageTransparency = 0
+			end
+			
+			-- update selected page
+			local focusedPage = self.focusedPage
+			self.focusedPage = page
+			
+			if focusedPage then
+				self:SelectPage(focusedPage)
+			end
+			
+			-- sections
+			local existingSections = focusedPage and #focusedPage.sections or 0
+			local sectionsRequired = #page.sections - existingSections
+			
+			page:Resize()
+			
+			for i, section in pairs(page.sections) do
+				section.container.Parent.ImageTransparency = 0
+			end
+			
+			if sectionsRequired < 0 then -- "hides" some sections
+				for i = existingSections, #page.sections + 1, -1 do
+					local section = focusedPage.sections[i].container.Parent
+					
+					utility:Tween(section, {ImageTransparency = 1}, 0.1)
+				end
+			end
+			
+			wait(0.1)
+			page.container.Visible = true
+			
+			if focusedPage then
+				focusedPage.container.Visible = false
+			end
+			
+			if sectionsRequired > 0 then -- "creates" more section
+				for i = existingSections + 1, #page.sections do
+					local section = page.sections[i].container.Parent
+					
+					section.ImageTransparency = 1
+					utility:Tween(section, {ImageTransparency = 0}, 0.05)
+				end
+			end
+			
+			wait(0.05)
+			
+			for i, section in pairs(page.sections) do
+			
+				utility:Tween(section.container.Title, {TextTransparency = 0}, 0.1)
+				section:Resize(true)
+				
+				wait(0.05)
+			end
+			
+			wait(0.05)
+			page:Resize(true)
+		else
+			-- page button
+			button.Title.Font = Enum.Font.Gotham
+			button.Title.TextTransparency = 0.65
+			
+			if button:FindFirstChild("Icon") then
+				button.Icon.ImageTransparency = 0.65
+			end
+			
+			-- sections
+			for i, section in pairs(page.sections) do	
+				utility:Tween(section.container.Parent, {Size = UDim2.new(1, -10, 0, 28)}, 0.1)
+				utility:Tween(section.container.Title, {TextTransparency = 1}, 0.1)
+			end
+			
+			wait(0.1)
+			
+			page.lastPosition = page.container.CanvasPosition.Y
+			page:Resize()
+		end
+	end
+	
+	function page:Resize(scroll)
+		local padding = 10
+		local size = 0
+		
+		for i, section in pairs(self.sections) do
+			size = size + section.container.Parent.AbsoluteSize.Y + padding
+		end
+		
+		self.container.CanvasSize = UDim2.new(0, 0, 0, size)
+		self.container.ScrollBarImageTransparency = size > self.container.AbsoluteSize.Y
+		
+		if scroll then
+			utility:Tween(self.container, {CanvasPosition = Vector2.new(0, self.lastPosition or 0)}, 0.2)
+		end
+	end
+	
+	function section:Resize(smooth)
+	
+		if self.page.library.focusedPage ~= self.page then
+			return
+		end
+		
+		local padding = 4
+		local size = (4 * padding) + self.container.Title.AbsoluteSize.Y -- offset
+		
+		for i, module in pairs(self.modules) do
+			size = size + module.AbsoluteSize.Y + padding
+		end
+		
+		if smooth then
+			utility:Tween(self.container.Parent, {Size = UDim2.new(1, -10, 0, size)}, 0.05)
+		else
+			self.container.Parent.Size = UDim2.new(1, -10, 0, size)
+			self.page:Resize()
+		end
+	end
+	
+	function section:getModule(info)
+	
+		if table.find(self.modules, info) then
+			return info
+		end
+		
+		for i, module in pairs(self.modules) do
+			if (module:FindFirstChild("Title") or module:FindFirstChild("TextBox", true)).Text == info then
+				return module
+			end
+		end
+		
+		error("No module found under "..tostring(info))
+	end
+	
+	-- updates
+	
+	function section:updateButton(button, title)
+		button = self:getModule(button)
+		
+		button.Title.Text = title
+	end
+	
+	function section:updateToggle(toggle, title, value)
+		toggle = self:getModule(toggle)
+		
+		local position = {
+			In = UDim2.new(0, 2, 0.5, -6),
+			Out = UDim2.new(0, 20, 0.5, -6)
+		}
+		
+		local frame = toggle.Button.Frame
+		value = value and "Out" or "In"
+		
+		if title then
+			toggle.Title.Text = title
+		end
+		
+		utility:Tween(frame, {
+			Size = UDim2.new(1, -22, 1, -9),
+			Position = position[value] + UDim2.new(0, 0, 0, 2.5)
+		}, 0.2)
+		
+		wait(0.1)
+		utility:Tween(frame, {
+			Size = UDim2.new(1, -22, 1, -4),
+			Position = position[value]
+		}, 0.1)
+	end
+	
+	function section:updateTextbox(textbox, title, value)
+		textbox = self:getModule(textbox)
+		
+		if title then
+			textbox.Title.Text = title
+		end
+		
+		if value then
+			textbox.Button.Textbox.Text = value
+		end
+		
+	end
+	
+	function section:updateKeybind(keybind, title, key)
+		keybind = self:getModule(keybind)
+		
+		local text = keybind.Button.Text
+		local bind = self.binds[keybind]
+		
+		if title then
+			keybind.Title.Text = title
+		end
+		
+		if bind.connection then
+			bind.connection = bind.connection:UnBind()
+		end
+			
+		if key then
+			self.binds[keybind].connection = utility:BindToKey(key, bind.callback)
+			text.Text = key.Name
+		else
+			text.Text = "None"
+		end
+	end
+	
+	function section:updateColorPicker(colorpicker, title, color)
+		colorpicker = self:getModule(colorpicker)
+		
+		local picker = self.colorpickers[colorpicker]
+		local tab = picker.tab
+		local callback = picker.callback
+		
+		if title then
+			colorpicker.Title.Text = title
+			tab.Title.Text = title
+		end
+		
+		local color3
+		local hue, sat, brightness
+		
+		if type(color) == "table" then -- roblox is literally retarded x2
+			hue, sat, brightness = unpack(color)
+			color3 = Color3.fromHSV(hue, sat, brightness)
+		else
+			color3 = color
+			hue, sat, brightness = Color3.toHSV(color3)
+		end
+		
+		utility:Tween(colorpicker.Button, {ImageColor3 = color3}, 0.5)
+		utility:Tween(tab.Container.Color.Select, {Position = UDim2.new(hue, 0, 0, 0)}, 0.1)
+		
+		utility:Tween(tab.Container.Canvas, {ImageColor3 = Color3.fromHSV(hue, 1, 1)}, 0.5)
+		utility:Tween(tab.Container.Canvas.Cursor, {Position = UDim2.new(sat, 0, 1 - brightness)}, 0.5)
+		
+		for i, container in pairs(tab.Container.Inputs:GetChildren()) do
+			if container:IsA("ImageLabel") then
+				local value = math.clamp(color3[container.Name], 0, 1) * 255
+				
+				container.Textbox.Text = math.floor(value)
+				--callback(container.Name:lower(), value)
+			end
+		end
+	end
+	
+	function section:updateSlider(slider, title, value, min, max, lvalue)
+		slider = self:getModule(slider)
+		
+		if title then
+			slider.Title.Text = title
+		end
+		
+		local bar = slider.Slider.Bar
+		local percent = (mouse.X - bar.AbsolutePosition.X) / bar.AbsoluteSize.X
+		
+		if value then -- support negative ranges
+			percent = (value - min) / (max - min)
+		end
+		
+		percent = math.clamp(percent, 0, 1)
+		value = value or math.floor(min + (max - min) * percent)
+		
+		slider.TextBox.Text = value
+		utility:Tween(bar.Fill, {Size = UDim2.new(percent, 0, 1, 0)}, 0.1)
+		
+		if value ~= lvalue and slider.ImageTransparency == 0 then
+			utility:Pop(slider, 10)
+		end
+		
+		return value
+	end
+	
+	function section:updateDropdown(dropdown, title, list, callback)
+		dropdown = self:getModule(dropdown)
+		
+		if title then
+			dropdown.Search.TextBox.Text = title
+		end
+		
+		local entries = 0
+		
+		utility:Pop(dropdown.Search, 10)
+		
+		for i, button in pairs(dropdown.List.Frame:GetChildren()) do
+			if button:IsA("ImageButton") then
+				button:Destroy()
+			end
+		end
+			
+		for i, value in pairs(list or {}) do
+			local button = utility:Create("ImageButton", {
+				Parent = dropdown.List.Frame,
+				BackgroundTransparency = 1,
+				BorderSizePixel = 0,
+				Size = UDim2.new(1, 0, 0, 30),
+				ZIndex = 2,
+				Image = "rbxassetid://5028857472",
+				ImageColor3 = themes.DarkContrast,
+				ScaleType = Enum.ScaleType.Slice,
+				SliceCenter = Rect.new(2, 2, 298, 298)
+			}, {
+				utility:Create("TextLabel", {
+					BackgroundTransparency = 1,
+					Position = UDim2.new(0, 10, 0, 0),
+					Size = UDim2.new(1, -10, 1, 0),
+					ZIndex = 3,
+					Font = Enum.Font.Gotham,
+					Text = value,
+					TextColor3 = themes.TextColor,
+					TextSize = 12,
+					TextXAlignment = "Left",
+					TextTransparency = 0.10000000149012
+				})
+			})
+			
+			button.MouseButton1Click:Connect(function()
+				if callback then
+					callback(value, function(...)
+						self:updateDropdown(dropdown, ...)
+					end)	
+				end
+
+				self:updateDropdown(dropdown, value, nil, callback)
+			end)
+			
+			entries = entries + 1
+		end
+		
+		local frame = dropdown.List.Frame
+		
+		utility:Tween(dropdown, {Size = UDim2.new(1, 0, 0, (entries == 0 and 30) or math.clamp(entries, 0, 3) * 34 + 38)}, 0.3)
+		utility:Tween(dropdown.Search.Button, {Rotation = list and 180 or 0}, 0.3)
+		
+		if entries > 3 then
+		
+			for i, button in pairs(dropdown.List.Frame:GetChildren()) do
+				if button:IsA("ImageButton") then
+					button.Size = UDim2.new(1, -6, 0, 30)
+				end
+			end
+			
+			frame.CanvasSize = UDim2.new(0, 0, 0, (entries * 34) - 4)
+			frame.ScrollBarImageTransparency = 0
+		else
+			frame.CanvasSize = UDim2.new(0, 0, 0, 0)
+			frame.ScrollBarImageTransparency = 1
+		end
+	end
+end
+return library
+
+pcall(function()
+    UIS.InputBegan:Connect(function(UserInput)
+        if UserInput.UserInputType == Enum.UserInputType.Keyboard and UserInput.KeyCode == Enum.KeyCode.J then
+            rageon = not rageon    
+        end
+        if UserInput.UserInputType == Enum.UserInputType.Keyboard and UserInput.KeyCode == Enum.KeyCode.Space and infJumpon then
+            Action(LocalPlayer.Character.Humanoid, function(self)
+                if self:GetState() == Enum.HumanoidStateType.Jumping or self:GetState() == Enum.HumanoidStateType.Freefall then
+                    Action(self.Parent.HumanoidRootPart, function(self)
+                        self.Velocity = Vector3.new(0, JumpPower, 0) 
+                    end) 
+                end
+            end)
+        end
+        if UserInput.UserInputType == Enum.UserInputType.Keyboard and UserInput.KeyCode == Enum.KeyCode.E then
+            noclipon = not noclipon
+        end
+        --[[
+        if UserInput.UserInputType == Enum.UserInputType.Keyboard and UserInput.KeyCode == toggleUIKey then
+            venyx:toggle()
+        end
+        --]]
+        if UserInput.UserInputType == Enum.UserInputType.Keyboard and UserInput.KeyCode == aimbotKey and aimbotOn then
+            aimbotEnabled = true
+            spawn(function()
+                while wait() do
+                    local target = WorldToScreen(getClosestToMouse().Character[aimbotPart].Position)
+                    mousemoverel(target.X - Mouse.X, target.Y - Mouse.Y)
+                    if not aimbotEnabled then return end
+                end
+            end)
+        end
+    end)
+end)
+
+UIS.InputEnded:Connect(function(UserInput)
+    if UserInput.UserInputType == Enum.UserInputType.Keyboard and UserInput.KeyCode == aimbotKey and aimbotOn then
+        aimbotEnabled = false
+    end
+end)
+
+function isSameTeam(Player, Player2)
+	if wkspc.FFA.Value == true then
+		return false
+	else
+		return Player.TeamColor == Player2.TeamColor and true or false
+	end
+end
+
+function hasVal(t, val)
+    if type(t) ~= "table" then return end
+    for i, v in ipairs(t) do
+        if v == val then return true end
+    end
+    return false
+end
+
+function clearTable(t)
+    if type(t) ~= "table" then return end
+    for k in pairs (t) do
+        t[k] = nil
+    end
+end
+
+local function removeESP(t)
+    if type(t) ~= "table" then return end
+    for k, v in pairs(t) do
+        t[k].Remove()
+    end
+end
+
+function getLowestValue(t)
+    if type(t) ~= "table" then return end
+    local temp
+    for _, v in next, t do
+        temp = v
+        break
+    end
+    
+    for _, v in next, t do
+        if v < temp then temp = v end
+    end
+    return temp
+end
+
+local players1 = {}
+function getClosestToMouse() [nonamecall]
+    local md = math.huge
+    local closestplayer
+    for i,v in next, Players:GetPlayers() do
+        if v ~= LocalPlayer and not isSameTeam(LocalPlayer, v) and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+            local dist = v:DistanceFromCharacter(Mouse.hit.p)
+            local pName = v.Name
+            players1[pName] = dist
+        end
+    end
+    local val = getLowestValue(players1)
+    for k, v in next, players1 do
+        if v == val then 
+            closestplayer = Players:FindFirstChild(k)
+        end
+    end
+    return closestplayer
+end
+
+local players2 = {}
+function getClosestToChar() [nonamecall]
+    local md = math.huge
+    local closestplayer
+    for _, v in next, Players:GetPlayers() do
+        if v ~= LocalPlayer and not isSameTeam(LocalPlayer, v) and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            local dist = v:DistanceFromCharacter(LocalPlayer.Character.HumanoidRootPart.Position)
+            local pName = v.Name
+            players2[pName] = dist
+        end
+    end
+    local val = getLowestValue(players2)
+    for k, v in next, players2 do
+        if v == val then
+            closestplayer = Players:FindFirstChild(k)
+        end
+    end
+    return closestplayer
+ end
+
+aimbotSection:addToggle("Aimbot", nil, function(value)
+    aimbotOn = value
+end)
+aimbotSection:addKeybind("Aimbot Key", Enum.KeyCode.T, function() end, function(value) aimbotKey = value end)
+aimbotSection:addDropdown("Aim Part", {"Head", "Body"}, function(value)
+    aimbotPart = value
+    if aimbotPart == "Body" then
+        aimbotPart = "UpperTorso"
+    end
+end)
+
+local triggerBotButton = othersSection:addToggle("Trigger Bot", nil, function(value)
+    triggerBoton = value
+    pcall(function()
+        RunService.RenderStepped:Connect(function()
+            if triggerBoton then
+                if Mouse.target ~= nil then
+                    if Mouse.target.Parent.Name == "Gun" or Mouse.target.Parent.Name == "scruc" then
+                        if Mouse.target.Parent.Parent:FindFirstChild("Humanoid") and Mouse.target.Parent.Parent:FindFirstChild("Hitbox") and Players:FindFirstChild(Mouse.target.Parent.Parent.Name).Status.Alive.Value == true and not isSameTeam(LocalPlayer, Players:FindFirstChild(Mouse.target.Parent.Parent.Name)) then
+                           mouse1press()
+                           wait()
+                           mouse1release()
+                        end
+                    else
+                       if Mouse.target.Parent:FindFirstChild("Humanoid") and Mouse.target.Parent:FindFirstChild("Hitbox") and Players:FindFirstChild(Mouse.target.Parent.Name).Status.Alive.Value == true and not isSameTeam(LocalPlayer, Players:FindFirstChild(Mouse.target.Parent.Name)) then
+                           mouse1press()
+                           wait()
+                           mouse1release()
+                        end
+                    end
+                end
+            end
+        end)
+    end)
+end)
+
+local silentAimButton = silentAimSection:addToggle("Silent Aim", nil, function(value)
+    silentAimon = value
+    pcall(function()
+        if silentAimon then
+            local mt = getrawmetatable(game)
+            local old = mt.__namecall
+
+            setreadonly(mt, false)
+
+            mt.__namecall = newcclosure(function(self, ...) [nonamecall]
+                local args = {...}
+                if not checkcaller() and getnamecallmethod() == 'FireServer' and self.Name == 'HitPart' then
+                    local ActiveGun = ReplicatedStorage.Weapons:FindFirstChild(LocalPlayer.NRPBS.EquippedTool.Value)
+                    local temp
+                    math.randomseed(os.time())
+                    math.random(); math.random(); math.random()
+                    local rand = math.random(1, 2)
+                    if silentAimPart == "Random" then
+                        if rand == 1 then temp = "Head"
+                        elseif rand == 2 then temp = "LowerTorso" end 
+                    else
+                        temp = silentAimPart
+                    end
+                    if preferedSilentAimMode == "getClosestToCharacter" and getClosestToChar().Status.Alive.Value and not ActiveGun:FindFirstChild("Projectile") then
+                        if temp == "Head" then
+                            args[1] = getClosestToChar().Character[temp]
+                            args[7] = true
+                        else
+                            args[1] = getClosestToChar().Character[temp]
+                            args[7] = false
+                        end
+                    elseif preferedSilentAimMode == "getClosestToMouse" and getClosestToMouse().Status.Alive.Value and not ActiveGun:FindFirstChild("Projectile") then
+                        if temp == "Head" then
+                            args[1] = getClosestToMouse().Character[temp]
+                            args[7] = true
+                        else
+                            args[1] = getClosestToMouse().Character[temp]
+                            args[7] = false
+                        end
+                    end
+                end
+                if silentAimOneShot then
+                    for i = 1, 3 do old(self, unpack(args)) end
+                else
+                    return old(self, unpack(args))
+                end
+                temp = nil
+                return old(self, unpack(args))
+            end)
+
+            setreadonly(mt, true)
+        else
+            local mt = getrawmetatable(game)
+            setreadonly(mt, false)
+            mt.__namecall = oldFireBullet
+            setreadonly(mt, true)
+        end
+    end)
+end)
+
+silentAimSection:addDropdown("Aim Part", {"Head", "Body", "Random"}, function(value)
+    silentAimPart = value
+    if silentAimPart == "Body" then silentAimPart = "LowerTorso" end 
+end)
+
+local rageButton = othersSection:addToggle("Spinbot(press J to disable/enable) BROKEN", nil, function(value)
+    rageon = value
+end)
+
+othersSection:addButton("Kill All", function()
+    for i,v in pairs(Players:GetPlayers()) do
+        if v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Status.Alive.Value and not isSameTeam(LocalPlayer, v) and v ~= LocalPlayer then
+            local Target = v.Character
+            local ActiveGun = ReplicatedStorage.Weapons:FindFirstChild(LocalPlayer.NRPBS.EquippedTool.Value)
+            local Distance = (LocalPlayer.Character.Head.Position - Target.Head.Position).magnitude
+
+            if ActiveGun:FindFirstChild("Projectile") then
+                local HRP = LocalPlayer.Character.HumanoidRootPart
+                HRP.CFrame = Target.HumanoidRootPart.CFrame
+                ReplicatedStorage.Events.ApplyGun:FireServer(ReplicatedStorage.Weapons.Knife, false)
+                for i = 0, 4 do ReplicatedStorage.Events.HitPart:FireServer(
+                    Target.Head,
+                    Target.Head.Position + Vector3.new(math.random(), math.random(), math.random()),
+                    ActiveGun.Name,
+                    2,
+                    Distance,
+                    false,
+                    true,
+                    false,
+                    1,
+                    false,
+                    ActiveGun.FireRate.Value,
+                    ActiveGun.ReloadTime.Value,
+                    ActiveGun.Ammo.Value,
+                    ActiveGun.StoredAmmo.Value,
+                    ActiveGun.Bullets.Value,
+                    ActiveGun.EquipTime.Value,
+                    ActiveGun.RecoilControl.Value,
+                    ActiveGun.Auto.Value,
+                    ActiveGun["Speed%"].Value,
+                    wkspc.DistributedTime.Value
+                )
+                end
+                ReplicatedStorage.Events.ApplyGun:FireServer(ActiveGun, false)
+            elseif ActiveGun.Name == "Knife" or ActiveGun.Name == "Golden Knife" or ActiveGun.Name == "Minigun" or ActiveGun.Name == "Candy Cane Miniguns" then
+                local HRP = LocalPlayer.Character.HumanoidRootPart
+                HRP.CFrame = Target.HumanoidRootPart.CFrame
+                for i = 0, 4 do ReplicatedStorage.Events.HitPart:FireServer(
+                    Target.Head,
+                    Target.Head.Position + Vector3.new(math.random(), math.random(), math.random()),
+                    ActiveGun.Name,
+                    2,
+                    Distance,
+                    false,
+                    true,
+                    false,
+                    1,
+                    false,
+                    ActiveGun.FireRate.Value,
+                    ActiveGun.ReloadTime.Value,
+                    ActiveGun.Ammo.Value,
+                    ActiveGun.StoredAmmo.Value,
+                    ActiveGun.Bullets.Value,
+                    ActiveGun.EquipTime.Value,
+                    ActiveGun.RecoilControl.Value,
+                    ActiveGun.Auto.Value,
+                    ActiveGun["Speed%"].Value,
+                    wkspc.DistributedTime.Value
+                )
+                end
+            else
+                for i = 0, 4 do ReplicatedStorage.Events.HitPart:FireServer(
+                    Target.Head,
+                    Target.Head.Position + Vector3.new(math.random(), math.random(), math.random()),
+                    ActiveGun.Name,
+                    2,
+                    Distance,
+                    false,
+                    true,
+                    false,
+                    1,
+                    false,
+                    ActiveGun.FireRate.Value,
+                    ActiveGun.ReloadTime.Value,
+                    ActiveGun.Ammo.Value,
+                    ActiveGun.StoredAmmo.Value,
+                    ActiveGun.Bullets.Value,
+                    ActiveGun.EquipTime.Value,
+                    ActiveGun.RecoilControl.Value,
+                    ActiveGun.Auto.Value,
+                    ActiveGun["Speed%"].Value,
+                    wkspc.DistributedTime.Value
+                )
+                end
+            end
+        end
+    end
+end)
+
+local noSpreadButton = mainWeaponsSection:addToggle("No Spread", nil, function(value)
+    noSpreadon = value
+    pcall(function()
+        while wait() do
+            local ActiveGun = ReplicatedStorage.Weapons:FindFirstChild(LocalPlayer.NRPBS.EquippedTool.Value)
+            if noSpreadon then
+                Client.currentspread = 0
+            else
+                Client.currentspread = ActiveGun.Spread.Value
+                Client.spreadmodifier = 1.2
+            end
+        end
+    end)
+end)
+local noRecoilButton = mainWeaponsSection:addToggle("No Recoil", nil, function(value) 
+    noRecoilon = value
+    pcall(function()
+        while wait() do
+            local ActiveGun = ReplicatedStorage.Weapons:FindFirstChild(LocalPlayer.NRPBS.EquippedTool.Value)
+            if noRecoilon then
+                Client.recoil = 0
+            else
+                Client.recoil = ActiveGun.RecoilControl.Value
+            end
+        end
+    end)
+end)
+local infAmmoButton = mainWeaponsSection:addToggle("Inf Ammo", nil, function(value)
+    infAmmoon = value
+    pcall(function()
+        if not infAmmoon then
+            local ActiveGun = ReplicatedStorage.Weapons:FindFirstChild(LocalPlayer.NRPBS.EquippedTool.Value)
+            debug.setupvalue(Client.updtprimary, 1, ActiveGun.Ammo.Value)
+        end
+    end)
+end)
+
+local isAuto
+if Client.mode == "automatic" then isAuto = true
+else isAuto = false end
+mainWeaponsSection:addToggle("Automatic", isAuto, function(value)
+    automaticOn = value
+    spawn(function()
+        while wait() do
+            if automaticOn then
+                Client.mode = "automatic"
+            else
+                Client.mode = "semi"
+            end
+        end
+    end)
+end)
+
+local noBulletHoleButton = miscWeaponsSection:addToggle("No Bullet Holes", nil, function(value)
+    noBulletHoleson = value
+    pcall(function()
+        local oldFunc
+        if noBulletHoleson then
+            oldFunc = hookfunction(Client.createbullethole, function() end)
+        else
+            hookfunction(Client.createbullethoes, oldFunc)
+        end
+    end)
+end)
+local noParticlesButton = miscWeaponsSection:addToggle("No Particles", nil, function(value)
+    noParticleson = value
+    pcall(function()
+        local oldFunc
+        if noParticleson then
+            oldFunc = hookfunction(Client.createparticle, function() end)
+        else
+            hookfunction(Client.createparticle, oldFunc)
+        end
+    end)
+end)
+local noTrailsButton = miscWeaponsSection:addToggle("No Trails(For weapons like Railgun)", nil, function(value)
+    noTrailson = value
+    pcall(function()
+        local oldFunc
+        if noTrailson then
+            oldFunc = hookfunction(Client.createtrail, function() end)
+        else
+            hookfunction(Client.createtrail, oldFunc)
+        end
+    end)
+end)
+local infJumpButton = playerSection:addToggle("Inf Jump", nil, function(value)
+    infJumpon = value 
+end)
+
+playerSection:addSlider("Jump Power", Client.JP, 0, 500, function(value) JumpPower = value end)
+
+playerSection:addSlider("FOV Adjuster", Client.defaultfov, 0, 120, function(value) Client.defaultfov = value end)
+
+playerSection:addSlider("Walkspeed", walkspeed, 0, 500, function(value) walkspeed = value end)
+
+local noclipButton = playerSection:addButton("Noclip(Press E to disable/enable)", nil, function(value)
+    noclipon = value
+end)
+
+playerSection:addKeybind("Toggle UI Keybind", Enum.KeyCode.RightShift, function() 
+    venyx:toggle()
+end, 
+function(value) toggleUIKey = value end)
+
+silentAimSection:addDropdown("Silent Aim Prefered Mode", {"Shoot the enemy closest to your crosshair", "Shoot the enemy closest to your character"}, function(value)
+    if value == "Shoot the enemy closest to your crosshair" then 
+        preferedSilentAimMode = "getClosestToMouse" 
+    elseif value == "Shoot the enemy closest to your character" then 
+        preferedSilentAimMode = "getClosestToCharacter"
+    end
+end)
+silentAimSection:addToggle("Silent Aim One Shot", nil, function(value)
+    silentAimOneShot = value
+end)
+
+espFeaturesSection:addToggle("Tracers", nil, function(value)
+    tracersOn = value
+end)
+espFeaturesSection:addToggle("Show Player Names", nil, function(value)
+    playerNamesOn = value
+end)
+espFeaturesSection:addToggle("Show Distance", nil, function(value)
+    showDistanceOn = value
+end)
+espFeaturesSection:addToggle("Show Health", nil, function(value)
+    showHealthOn = value 
+end)
+espFeaturesSection:addToggle("Boxes(Quad Support Required)", nil, function(value)
+    boxesOn = value
+end)
+espFeaturesSection:addToggle("Other Boxes(Use if the feature above doesnt work)", nil, function(value)
+    espon = value
+end)
+espColorsSection:addColorPicker("Tracers Color", Color3.fromRGB(255, 105, 195), function(value)
+    tracersColor = value
+end)
+espColorsSection:addColorPicker("Player Names Color", Color3.fromRGB(255, 105, 195), function(value)
+    playerNamesColor = value
+end)
+espColorsSection:addColorPicker("Boxes Color", Color3.fromRGB(255, 105, 195), function(value)
+    boxesColor = value
+end)
+espColorsSection:addToggle("Use Default Team Colors", nil, function(value)
+    useDefaultTeamColors = value
+end)
+
+spawn(function()
+    pcall(function()
+        RunService.RenderStepped:Connect(function()
+            if noclipon and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then LocalPlayer.Character.Humanoid:ChangeState(11) end
+        end)
+    end)
+end)
+spawn(function()
+    pcall(function()
+        while wait() do
+            if infAmmoon then debug.setupvalue(Client.updtprimary, 1, 999) end 
+            if walkspeed ~= 23.32 then LocalPlayer.Character.Humanoid.WalkSpeed = walkspeed end
+            if JumpPower ~= Client.JP then LocalPlayer.Character.Humanoid.JumpPower = JumpPower end
+        end
+    end)
+end)
+
+local PlayerNames = {}
+local PlayerLines = {}
+
+spawn(function()
+    pcall(function()
+        RunService.RenderStepped:Connect(function()
+            if tracersOn and not espPaused then
+                if not syn then return end
+                for i, v in pairs(Players:GetPlayers()) do
+                    if v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                        if not hasVal(PlayerNames, v.Name) or PlayerLines[v.Name] == nil then
+                            table.insert(PlayerNames, v.Name)
+                            PlayerLines[v.Name] = Drawing.new("Line")
+
+                            if v ~= LocalPlayer and not isSameTeam(LocalPlayer, v) then
+                                local vector, onScreen = Camera:WorldToScreenPoint(v.Character.HumanoidRootPart.Position)
+
+                                PlayerLines[v.Name].Visible = true
+                                PlayerLines[v.Name].Transparency = 1
+                                PlayerLines[v.Name].From = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y - 2)
+                                PlayerLines[v.Name].To = Vector2.new(vector.x, vector.y)
+                                if useDefaultTeamColors then
+                                    PlayerLines[v.Name].Color = v.TeamColor.Color
+                                else
+                                    PlayerLines[v.Name].Color = tracersColor
+                                end
+                                PlayerLines[v.Name].Thickness = 2
+                            end
+                            
+                        elseif hasVal(PlayerNames, v.Name) and PlayerLines[v.Name] ~= nil then
+                            if v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v ~= LocalPlayer and not isSameTeam(LocalPlayer, v) then
+                                local vector, onScreen = Camera:WorldToScreenPoint(v.Character.HumanoidRootPart.Position)
+
+                                if onScreen then
+                                    PlayerLines[v.Name].From = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y - 2)
+                                    PlayerLines[v.Name].To = Vector2.new(vector.x, vector.y)
+                                    if useDefaultTeamColors then
+                                        PlayerLines[v.Name].Color = v.TeamColor.Color
+                                    else
+                                        PlayerLines[v.Name].Color = tracersColor
+                                    end
+                                    PlayerLines[v.Name].Thickness = 2
+                                    PlayerLines[v.Name].Visible = true
+                                elseif not onScreen or not v.Status.Alive.Value then
+                                    PlayerLines[v.Name].Visible = false
+                                end
+                            end 
+                        end
+                    end 
+                end
+            else
+                if #PlayerNames >= 2 then
+                    espPaused = true
+                    removeESP(PlayerLines)
+                    clearTable(PlayerNames)
+                    clearTable(PlayerLines)
+                    espPaused = false
+                end
+            end
+        end)
+    end)
+end)
+
+
+local PlayerNames2 = {}
+local NamedPlayers = {}
+
+spawn(function()
+    pcall(function()
+        RunService.RenderStepped:Connect(function()
+            if playerNamesOn and not playerNamesPaused then
+                for i, v in pairs(Players:GetPlayers()) do
+                    if v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                        if not hasVal(PlayerNames2, v.Name) or NamedPlayers[i] == nil then
+                            table.insert(PlayerNames2, v.Name)
+                            NamedPlayers[i] = Drawing.new("Text")
+                            
+                            if v ~= LocalPlayer and not isSameTeam(LocalPlayer, v) then
+                                local vector, onScreen = Camera:WorldToScreenPoint(v.Character.HumanoidRootPart.Position)
+                                
+                                NamedPlayers[i].Visible = true
+                                NamedPlayers[i].Transparency = 1
+                                NamedPlayers[i].Text = v.Name
+                                NamedPlayers[i].Size = 14.0
+                                if useDefaultTeamColors then
+                                    NamedPlayers[i].Color = v.TeamColor.Color
+                                else
+                                    NamedPlayers[i].Color = playerNamesColor
+                                end
+                                NamedPlayers[i].Outline = true
+                                NamedPlayers[i].Center = true
+                                NamedPlayers[i].Position = Vector2.new(vector.X, vector.Y)
+                            end
+                        elseif hasVal(PlayerNames2, v.Name) and NamedPlayers[i] ~= nil then
+                            if v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v ~= LocalPlayer and not isSameTeam(LocalPlayer, v) then
+                                local vector, onScreen = Camera:WorldToScreenPoint(v.Character.HumanoidRootPart.Position)
+    
+                                if onScreen then
+                                    NamedPlayers[i].Position = Vector2.new(vector.X, vector.Y)
+                                    if useDefaultTeamColors then
+                                        NamedPlayers[i].Color = v.TeamColor.Color
+                                    else
+                                        NamedPlayers[i].Color = playerNamesColor
+                                    end
+                                    NamedPlayers[i].Transparency = 1
+                                    NamedPlayers[i].Text = v.Name
+                                    NamedPlayers[i].Size = 14.0
+                                    NamedPlayers[i].Outline = true
+                                    NamedPlayers[i].Center = true
+                                    NamedPlayers[i].Visible = true
+                                elseif not onScreen or not v.Status.Alive.Value then
+                                    NamedPlayers[i].Visible = false
+                                end
+                            end
+                        end
+                    end
+                end
+            else
+                if #PlayerNames2 >= 2 then
+                    playerNamesPaused = true
+                    removeESP(NamedPlayers)
+                    clearTable(PlayerNames2)
+                    clearTable(NamedPlayers)
+                    playerNamesPaused = false
+                end
+            end
+        end)
+    end)
+end)
+
+local PlayerNames3 = {}
+local TaggedPlayers = {}
+
+spawn(function()
+    pcall(function()
+        RunService.RenderStepped:Connect(function()
+            if showDistanceOn and not showDistancePaused then
+                for i, v in pairs(Players:GetPlayers()) do
+                    if v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                        if not hasVal(PlayerNames3, v.Name) or TaggedPlayers[i] == nil then
+                            table.insert(PlayerNames3, v.Name)
+                            TaggedPlayers[i] = Drawing.new("Text")
+    
+                            if v ~= LocalPlayer and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and not isSameTeam(LocalPlayer, v) then
+                                local vector, onScreen = Camera:WorldToScreenPoint(v.Character.HumanoidRootPart.Position)
+    
+                                TaggedPlayers[i].Visible = true
+                                TaggedPlayers[i].Transparency = 1
+                                TaggedPlayers[i].Text = tostring(math.floor(v:DistanceFromCharacter(LocalPlayer.Character.HumanoidRootPart.Position) + 0.5)) .. " studs"
+                                TaggedPlayers[i].Size = 14.0
+                                TaggedPlayers[i].Color = Color3.fromRGB(255, 255, 255)
+                                TaggedPlayers[i].Outline = true
+                                TaggedPlayers[i].Center = true
+                                TaggedPlayers[i].Position = Vector2.new(vector.X + 60, vector.Y)
+                            end
+                        elseif hasVal(PlayerNames3, v.Name) and TaggedPlayers[i] ~= nil then
+                            if v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v ~= LocalPlayer and not isSameTeam(LocalPlayer, v) and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                                local vector, onScreen = Camera:WorldToScreenPoint(v.Character.HumanoidRootPart.Position)
+    
+                                if onScreen then
+                                    TaggedPlayers[i].Text = tostring(math.floor(v:DistanceFromCharacter(LocalPlayer.Character.HumanoidRootPart.Position) + 0.5)) .. " studs"
+                                    TaggedPlayers[i].Position = Vector2.new(vector.X + 60, vector.Y)
+                                    TaggedPlayers[i].Size = 14.0
+                                    TaggedPlayers[i].Transparency = 1
+                                    TaggedPlayers[i].Color = Color3.fromRGB(255, 255, 255)
+                                    TaggedPlayers[i].Outline = true
+                                    TaggedPlayers[i].Center = true
+                                    TaggedPlayers[i].Visible = true
+                                elseif not onScreen or not v.Status.Alive.Value then
+                                    TaggedPlayers[i].Visible = false
+                                end
+                            end
+                        end
+                    end
+                end
+            else
+                if #PlayerNames3 >= 2 then
+                    showDistancePaused = true
+                    removeESP(TaggedPlayers)
+                    clearTable(PlayerNames3)
+                    clearTable(TaggedPlayers)
+                    showDistancePaused = false
+                end
+            end
+        end)
+    end)
+end)
+
+local PlayerNames4 = {}
+local BoxedPlayers = {}
+
+spawn(function()
+    pcall(function()
+        RunService.RenderStepped:Connect(function()
+            if boxesOn and not boxesPaused then
+                for i, v in pairs(Players:GetPlayers()) do
+                    if v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                        if not hasVal(PlayerNames4, v.Name) or BoxedPlayers[i] == nil then
+                            table.insert(PlayerNames4, v.Name)
+                            BoxedPlayers[i] = Drawing.new("Quad")
+    
+                            if v ~= LocalPlayer and not isSameTeam(LocalPlayer, v) and v.Status.Alive.Value then
+                                local Size = Vector3.new(2, 3, 0) * ((v.Character.Head.Size.Y / 2) * 2)
+                                
+                                local TLPos, onScreen1 = WorldToViewport((v.Character.HumanoidRootPart.CFrame * CFrame.new(Size.X, Size.Y, 0)).Position)
+                                local TRPos, onScreen2 = WorldToViewport((v.Character.HumanoidRootPart.CFrame * CFrame.new(-Size.X, Size.Y, 0)).Position)
+                                local BLPos, onScreen3 = WorldToViewport((v.Character.HumanoidRootPart.CFrame * CFrame.new(Size.X, -Size.Y, 0)).Position)
+                                local BRPos, onScreen4 = WorldToViewport((v.Character.HumanoidRootPart.CFrame * CFrame.new(-Size.X, -Size.Y, 0)).Position)
+    
+                                BoxedPlayers[i].Visible = true
+                                BoxedPlayers[i].Transparency = 1 
+                                BoxedPlayers[i].Thickness = 2
+                                if useDefaultTeamColors then
+                                    BoxedPlayers[i].Color = v.TeamColor.Color
+                                else
+                                    BoxedPlayers[i].Color = boxesColor
+                                end
+                                BoxedPlayers[i].Filled = false
+                                if onScreen1 and onScreen2 and onScreen3 and onScreen4 then
+                                    BoxedPlayers[i].PointA = Vector2.new(TLPos.X, TLPos.Y)
+                                    BoxedPlayers[i].PointB = Vector2.new(TRPos.X, TRPos.Y)
+                                    BoxedPlayers[i].PointC = Vector2.new(BRPos.X, BRPos.Y)
+                                    BoxedPlayers[i].PointD = Vector2.new(BLPos.X, BLPos.Y)
+                                end
+                            end
+                        elseif hasVal(PlayerNames4, v.Name) and BoxedPlayers[i] ~= nil then
+                            if v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v ~= LocalPlayer and not isSameTeam(LocalPlayer, v) and v.Status.Alive.Value then
+                                local Size = Vector3.new(2, 3, 0) * ((v.Character.Head.Size.Y / 2) * 2)
+                                
+                                local TLPos, onScreen1 = WorldToViewport((v.Character.HumanoidRootPart.CFrame * CFrame.new(Size.X, Size.Y, 0)).Position)
+                                local TRPos, onScreen2 = WorldToViewport((v.Character.HumanoidRootPart.CFrame * CFrame.new(-Size.X, Size.Y, 0)).Position)
+                                local BLPos, onScreen3 = WorldToViewport((v.Character.HumanoidRootPart.CFrame * CFrame.new(Size.X, -Size.Y, 0)).Position)
+                                local BRPos, onScreen4 = WorldToViewport((v.Character.HumanoidRootPart.CFrame * CFrame.new(-Size.X, -Size.Y, 0)).Position)
+    
+                                if onScreen1 and onScreen2 and onScreen3 and onScreen4 then
+                                    BoxedPlayers[i].PointA = Vector2.new(TLPos.X, TLPos.Y)
+                                    BoxedPlayers[i].PointB = Vector2.new(TRPos.X, TRPos.Y)
+                                    BoxedPlayers[i].PointC = Vector2.new(BRPos.X, BRPos.Y)
+                                    BoxedPlayers[i].PointD = Vector2.new(BLPos.X, BLPos.Y)
+                                    if useDefaultTeamColors then
+                                        BoxedPlayers[i].Color = v.TeamColor.Color
+                                    else
+                                        BoxedPlayers[i].Color = boxesColor
+                                    end
+                                    BoxedPlayers[i].Thickness = 2
+                                    BoxedPlayers[i].Visible = true
+                                elseif not onScreen or not v.Status.Alive.Value then
+                                    BoxedPlayers[i].Visible = false
+                                end
+                            end
+                        end
+                    end
+                end
+            else
+                if #PlayerNames4 >= 2 then
+                    boxesPaused = true
+                    removeESP(BoxedPlayers)
+                    clearTable(PlayerNames4)
+                    clearTable(BoxedPlayers)
+                    boxesPaused = false
+                end
+            end
+        end)
+    end)
+end)
+
+local PlayerNames5 = {}
+local HealthedPlayers = {}
+
+spawn(function()
+    pcall(function()
+        RunService.RenderStepped:Connect(function()
+            if showHealthOn and not showHealthPaused then
+                for i, v in pairs(Players:GetPlayers()) do
+                    if v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                        if not hasVal(PlayerNames5, v.Name) or HealthedPlayers[i] == nil then
+                            table.insert(PlayerNames5, v.Name)
+                            HealthedPlayers[i] = Drawing.new("Text")
+    
+                            if v ~= LocalPlayer and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and not isSameTeam(LocalPlayer, v) then
+                                local vector, onScreen = Camera:WorldToScreenPoint(v.Character.HumanoidRootPart.Position)
+    
+                                HealthedPlayers[i].Visible = true
+                                HealthedPlayers[i].Transparency = 1
+                                HealthedPlayers[i].Text = tostring(v.Character.Humanoid.Health) .. "/" .. tostring(v.Character.Humanoid.MaxHealth) .. " HP"
+                                HealthedPlayers[i].Size = 14.0
+                                HealthedPlayers[i].Color = Color3.fromRGB(255, 255, 255)
+                                HealthedPlayers[i].Outline = true
+                                HealthedPlayers[i].Center = true
+                                HealthedPlayers[i].Position = Vector2.new(vector.X, vector.Y - 10)
+                            end
+                        elseif hasVal(PlayerNames5, v.Name) and HealthedPlayers[i] ~= nil then
+                            if v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v ~= LocalPlayer and not isSameTeam(LocalPlayer, v) and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                                local vector, onScreen = Camera:WorldToScreenPoint(v.Character.HumanoidRootPart.Position)
+    
+                                if onScreen then
+                                    HealthedPlayers[i].Text = tostring(v.Character.Humanoid.Health) .. "/" .. tostring(v.Character.Humanoid.MaxHealth) .. " HP"
+                                    HealthedPlayers[i].Position = Vector2.new(vector.X, vector.Y - 10)
+                                    HealthedPlayers[i].Color = Color3.fromRGB(255, 255, 255)
+                                    HealthedPlayers[i].Size = 14.0
+                                    HealthedPlayers[i].Outline = true
+                                    HealthedPlayers[i].Center = true
+                                    HealthedPlayers[i].Transparency = 1
+                                    HealthedPlayers[i].Visible = true
+                                elseif not onScreen or not v.Status.Alive.Value then
+                                    HealthedPlayers[i].Visible = false
+                                end
+                            end
+                        end
+                    end
+                end
+            else
+                if #PlayerNames5 >= 2 then
+                    showHealthPaused = true
+                    removeESP(HealthedPlayers)
+                    clearTable(PlayerNames5)
+                    clearTable(HealthedPlayers)
+                    showHealthPaused = false
+                end
+            end
+        end)
+    end)
+end)
+
+Players.PlayerRemoving:Connect(function()
+    if tracersOn then
+        espPaused = true
+        removeESP(PlayerLines)
+        clearTable(PlayerNames)
+        clearTable(PlayerLines)
+        espPaused = false
+    end
+    if playerNamesOn then
+        playerNamesPaused = true
+        removeESP(NamedPlayers)
+        clearTable(PlayerNames2)
+        clearTable(NamedPlayers)
+        playerNamesPaused = false
+    end
+    if showDistanceOn then
+        showDistancePaused = true
+        removeESP(TaggedPlayers)
+        clearTable(PlayerNames3)
+        clearTable(TaggedPlayers)
+        showDistancePaused = false
+    end
+    if boxesOn then
+        boxesPaused = true
+        removeESP(BoxedPlayers)
+        clearTable(PlayerNames4)
+        clearTable(BoxedPlayers)
+        boxesPaused = false
+    end
+    if showHealthOn then
+        showHealthPaused = true
+        removeESP(HealthedPlayers)
+        clearTable(PlayerNames5)
+        clearTable(HealthedPlayers)
+        showHealthPaused = false
+    end
+end)
+
+spawn(function()
+    pcall(function()
+        RunService.RenderStepped:Connect(function()
+            if espon then
+                for i,v in pairs(Players:GetPlayers()) do
+                    if v.Status.Alive.Value == true then
+                        if not v.Character.HumanoidRootPart:FindFirstChild("scruc") and not isSameTeam(LocalPlayer, v) and v.Name ~= LocalPlayer.Name then
+                            local part = Instance.new("BoxHandleAdornment")
+                        
+                            part.Name = "scruc"
+                            part.AlwaysOnTop = true
+                            part.Adornee = v.Character.HumanoidRootPart
+                            part.ZIndex = 5
+                            part.Parent = v.Character.HumanoidRootPart
+                            part.Transparency = 0.6
+                            part.Color3 = boxesColor
+                            part.Size = v.Character.HumanoidRootPart.Size + Vector3.new(1, 1, 1)
+                        elseif v.Character.HumanoidRootPart:FindFirstChild("scruc") and isSameTeam(LocalPlayer, v) then
+                            v.Character.HumanoidRootPart:FindFirstChild("scruc"):Destroy()
+                        end
+                    end
+                end
+            else
+                for i,v in pairs(Players:GetPlayers()) do
+                    if v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character.HumanoidRootPart:FindFirstChild("scruc") then
+                        v.Character.HumanoidRootPart.scruc:Destroy() 
+                    end
+                end
+            end
+        end)
+    end)
+end)
